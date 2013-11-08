@@ -2,6 +2,7 @@
 
 namespace Brouzie\Sphinxy;
 
+use Brouzie\Sphinxy\Exception\ConnectionException;
 use Brouzie\Sphinxy\Logging\LoggerInterface;
 use Brouzie\Sphinxy\Query\ResultSet;
 
@@ -47,6 +48,11 @@ class Connection
         }
 
         $result = $this->pdo->exec($this->prepareQuery($query, $params));
+        if (false === $result) {
+            list($code, , $message) = $this->pdo->errorInfo();
+
+            throw new ConnectionException($message, $code);
+        }
 
         if (null !== $this->logger) {
             $this->logger->stopQuery();
@@ -61,7 +67,13 @@ class Connection
             $this->logger->startQuery($query);
         }
 
-        $result = $this->pdo->query($this->prepareQuery($query, $params))->fetchAll(\PDO::FETCH_ASSOC);
+        $stmt = $this->pdo->query($this->prepareQuery($query, $params));
+        if (!is_object($stmt)) {
+            list($code, , $message) = $this->pdo->errorInfo();
+
+            throw new ConnectionException($message, $code);
+        }
+        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         if (null !== $this->logger) {
             $this->logger->stopQuery();

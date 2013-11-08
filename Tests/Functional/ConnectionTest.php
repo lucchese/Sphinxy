@@ -22,6 +22,21 @@ class ConnectionTest extends \PHPUnit_Framework_TestCase
 
     public function testInsert()
     {
-        self::$conn->executeUpdate("INSERT INTO $this->index (id, title) VALUES(1, 'title1'), (2, 'title2')");
+        $this->assertEquals(2, self::$conn->executeUpdate("INSERT INTO $this->index (id, title) VALUES(1, 'title1'), (2, 'title2')"));
+        $this->assertEquals(2, self::$conn->executeUpdate("INSERT INTO $this->index (id, title) VALUES(3, 'title3'), (4, 'title4')"));
+        $this->assertEquals(1, self::$conn->executeUpdate("INSERT INTO $this->index (id, title) VALUES(5, 'title5')"));
+
+        $resultSet = self::$conn->executeQuery("SELECT * FROM $this->index LIMIT 2");
+        $this->assertCount(2, $resultSet->getIterator());
+        $this->assertEquals(5, $resultSet->getTotalCount());
+    }
+
+    public function testReplace()
+    {
+        $this->assertEquals(1, self::$conn->executeUpdate("REPLACE INTO $this->index (id, title, category_id) VALUES(3, 'title3-new', 33)"));
+
+        $resultSet = self::$conn->executeQuery("SELECT id, category_id FROM $this->index WHERE id = 3");
+
+        $this->assertEquals(array('id' => '3', 'category_id' => '33'), current($resultSet->getIterator()));
     }
 }

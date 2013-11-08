@@ -8,9 +8,15 @@ class ResultSet implements \IteratorAggregate
 
     protected $meta;
 
-    public function __construct(array $result, $meta)
+    public function __construct(array $result, $rawMeta)
     {
         $this->result = $result;
+
+        $meta = array();
+        foreach ($rawMeta as $row) {
+            $meta[$row['Variable_name']] = $row['Value'];
+        }
+
         $this->meta = $meta;
     }
 
