@@ -3,6 +3,7 @@
 namespace Brouzie\Sphinxy;
 
 use Brouzie\Sphinxy\Logging\LoggerInterface;
+use Brouzie\Sphinxy\Query\ResultSet;
 
 class Connection
 {
@@ -65,8 +66,10 @@ class Connection
         if (null !== $this->logger) {
             $this->logger->stopQuery();
         }
+        //TODO: use multiquery?
+        $meta = $this->pdo->query('SHOW META')->fetchAll(\PDO::FETCH_ASSOC);
 
-        return $result;
+        return new ResultSet($result, $meta);
     }
 
     public function quote($value)

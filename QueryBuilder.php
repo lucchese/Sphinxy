@@ -316,6 +316,7 @@ class QueryBuilder
             . ($this->sqlParts['groupBy'] ? ' GROUP BY ' . implode(', ', $this->sqlParts['groupBy']) : '')
             . ($this->sqlParts['orderBy'] ? ' ORDER BY ' . implode(', ', $this->sqlParts['orderBy']) : '');
 
+        //TODO: inject limit, skip as parameters for better caching? Or just move caching to upper layer
         if ($this->maxResults) {
             $query .= ' LIMIT '.(int)$this->maxResults;
             if ($this->firstResult) {
