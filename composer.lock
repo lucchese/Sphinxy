@@ -3,11 +3,73 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "92524ee9a057d840a21853020b0d5c55",
+    "hash": "2fe886f5b5f4a7c2b2951d575c89ba93",
     "packages": [
 
     ],
     "packages-dev": [
+        {
+            "name": "pagerfanta/pagerfanta",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/whiteoctober/Pagerfanta.git",
+                "reference": "9568187b789a39a3933c71e4e28b60fc2c26b70d"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/whiteoctober/Pagerfanta/zipball/9568187b789a39a3933c71e4e28b60fc2c26b70d",
+                "reference": "9568187b789a39a3933c71e4e28b60fc2c26b70d",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.0"
+            },
+            "require-dev": {
+                "doctrine/mongodb-odm": "*",
+                "doctrine/orm": "2.*",
+                "mandango/mandango": "*",
+                "propel/propel1": "~1.6",
+                "solarium/solarium": "dev-develop"
+            },
+            "suggest": {
+                "doctrine/mongodb-odm": "To use the DoctrineODMMongoDBAdapter.",
+                "doctrine/orm": "To use the DoctrineORMAdapter.",
+                "mandango/mandango": "To use the MandangoAdapter.",
+                "propel/propel1": "To use the PropelAdapter",
+                "solarium/solarium": "To use the SolariumAdapter."
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0.x-dev"
+                }
+            },
+            "autoload": {
+                "psr-0": {
+                    "Pagerfanta\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Pablo Díez",
+                    "email": "pablodip@gmail.com",
+                    "homepage": "http://github.com/pablodip"
+                }
+            ],
+            "description": "Pagination for PHP 5.3",
+            "keywords": [
+                "page",
+                "pagination",
+                "paginator",
+                "paging"
+            ],
+            "time": "2013-09-23 08:06:55"
+        },
         {
             "name": "phpunit/php-code-coverage",
             "version": "1.2.13",
@@ -428,7 +490,8 @@
     ],
     "minimum-stability": "stable",
     "stability-flags": {
-        "phpunit/phpunit": 0
+        "phpunit/phpunit": 0,
+        "pagerfanta/pagerfanta": 0
     },
     "platform": {
         "php": ">=5.3.8"
