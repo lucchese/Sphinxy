@@ -149,6 +149,40 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('SELECT * FROM products WHERE qty = :qty GROUP BY city_id, company_id', $qb->getSql());
     }
 
+    public function testSimpleInsert()
+    {
+        $qb = $this->getQueryBuilder();
+
+        $qb->insert('products')
+            ->values(array('id' => 1, 'title' => "'product 1'"))
+        ;
+
+        $this->assertEquals("INSERT INTO products (id, title) VALUES (1, 'product 1')", $qb->getSql());
+    }
+
+    public function testInsertMultipleValues()
+    {
+        $qb = $this->getQueryBuilder();
+
+        $qb->insert('products')
+            ->values(array('id' => 1, 'title' => "'product 1'"))
+            ->addValues(array('id' => 2, 'title' => "'product 2'"))
+        ;
+
+        $this->assertEquals("INSERT INTO products (id, title) VALUES (1, 'product 1'), (2, 'product 2')", $qb->getSql());
+    }
+
+    public function testSimpleReplace()
+    {
+        $qb = $this->getQueryBuilder();
+
+        $qb->replace('products')
+            ->values(array('id' => 1, 'title' => "'product 1'"))
+        ;
+
+        $this->assertEquals("REPLACE INTO products (id, title) VALUES (1, 'product 1')", $qb->getSql());
+    }
+
 
     protected function getQueryBuilder()
     {

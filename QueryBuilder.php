@@ -30,6 +30,7 @@ class QueryBuilder
         'where' => array(),
         'groupBy' => array(),
         'orderBy' => array(),
+        'values' => array(),
     );
 
     private $firstResult = null;
@@ -73,18 +74,22 @@ class QueryBuilder
     {
         $this->type = self::TYPE_INSERT;
 
+        $this->resetQueryPart('from');
+
         return $this->add('from', array(
                 'table' => $index,
-            ));
+            ), true);
     }
 
     public function replace($index)
     {
         $this->type = self::TYPE_REPLACE;
 
+        $this->resetQueryPart('from');
+
         return $this->add('from', array(
                 'table' => $index,
-            ));
+            ), true);
     }
 
     public function delete($index)
@@ -101,12 +106,16 @@ class QueryBuilder
         return $this->add('set', $key .' = ' . $value, true);
     }
 
-    public function values($values)
+    public function values(array $values)
     {
+        $this->resetQueryPart('values');
+
+        return $this->add('values', $values, true);
     }
 
-    public function addValues($values)
+    public function addValues(array $values)
     {
+        return $this->add('values', $values, true);
     }
 
     public function from($index)
@@ -334,13 +343,18 @@ class QueryBuilder
             $fromClauses[] = $from['table'];
         }
 
-        //FIXME: implement
-        $valuesSets = array();
         $columns = array();
+        $valuesSets = array();
+        foreach ($this->sqlParts['values'] as $value) {
+            //TODO: check columns
+            $columns = array_keys($value);
+            $valuesSets[] = '(' . implode(', ', $value) . ')';
+        }
 
+        //TODO: only one index allowed in insert?
         $query = ($this->type === self::TYPE_REPLACE ? 'REPLACE' : 'INSERT')
             . ' INTO ' . implode(', ', $fromClauses)
-            . ' (' . implode(',', $columns) . ') VALUES ' . implode(', ', $valuesSets);
+            . ' (' . implode(', ', $columns) . ') VALUES ' . implode(', ', $valuesSets);
 
         return $query;
     }
