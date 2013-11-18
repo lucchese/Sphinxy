@@ -183,6 +183,33 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("REPLACE INTO products (id, title) VALUES (1, 'product 1')", $qb->getSql());
     }
 
+    public function testCreateParameter()
+    {
+        $qb = $this->getQueryBuilder();
+
+        $qb->select('*')
+            ->from('products')
+            ->where('qty = ' . $qb->createParameter(10))
+            ->andWhere('price > ' . $qb->createParameter(20))
+        ;
+
+        $this->assertEquals('SELECT * FROM products WHERE qty = :gen_1 AND price > :gen_2', $qb->getSql());
+        $this->assertEquals(array('gen_1' => 10, 'gen_2' => 20), $qb->getParameters());
+    }
+
+    public function testCreateParameterWithPrefix()
+    {
+        $qb = $this->getQueryBuilder();
+
+        $qb->select('*')
+            ->from('products')
+            ->where('qty = ' . $qb->createParameter(10))
+            ->andWhere('price > ' . $qb->createParameter(20, 'price'))
+        ;
+
+        $this->assertEquals('SELECT * FROM products WHERE qty = :gen_1 AND price > :price2', $qb->getSql());
+        $this->assertEquals(array('gen_1' => 10, 'price2' => 20), $qb->getParameters());
+    }
 
     protected function getQueryBuilder()
     {

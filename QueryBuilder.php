@@ -37,6 +37,8 @@ class QueryBuilder
 
     private $maxResults = null;
 
+    private $parametersCounter = 0;
+
     private $params = array();
 
     public function __construct(Connection $conn)
@@ -198,6 +200,28 @@ class QueryBuilder
         $this->params[$key] = $value;
 
         return $this;
+    }
+
+    /**
+     * Creates a new named parameter and bind the value $value to it.
+     *
+     * @param mixed  $value
+     * @param string $prefix The name to bind with.
+     *
+     * @return string the placeholder name used.
+     */
+    public function createParameter($value, $prefix = 'gen_')
+    {
+        $this->parametersCounter++;
+        $prefix .= $this->parametersCounter;
+        $this->setParameter($prefix, $value);
+
+        return ':' . $prefix;
+    }
+
+    public function getParameters()
+    {
+        return $this->params;
     }
 
     public function execute()
