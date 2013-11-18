@@ -33,6 +33,8 @@ class QueryBuilder
         'values' => array(),
     );
 
+    private $options = array();
+
     private $firstResult = null;
 
     private $maxResults = null;
@@ -174,9 +176,11 @@ class QueryBuilder
         return $this->add('orderBy', $sort.' '.(!$order ? 'ASC' : $order), true);
     }
 
-    public function option($name, $value)
+    public function setOption($name, $value)
     {
+        $this->options[$name] = $value;
 
+        return $this;
     }
 
     public function setMaxResults($limit)
@@ -355,6 +359,14 @@ class QueryBuilder
             if ($this->firstResult) {
                 $query .= ', '.(int)$this->firstResult;
             }
+        }
+
+        if ($this->options) {
+            $optionsClauses = array();
+            foreach ($this->options as $optionName => $optionValue) {
+                $optionsClauses[] = $optionName . ' = ' . $optionValue;
+            }
+            $query .= ' OPTION ' . implode(', ', $optionsClauses);
         }
 
         return $query;

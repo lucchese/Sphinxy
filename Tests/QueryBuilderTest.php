@@ -211,6 +211,33 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals(array('gen_1' => 10, 'price2' => 20), $qb->getParameters());
     }
 
+    public function testQueryWithOption()
+    {
+        $qb = $this->getQueryBuilder();
+
+        $qb->select('*')
+            ->from('products')
+            ->where('qty = :qty')
+            ->setOption('max_matches', 1000)
+        ;
+
+        $this->assertEquals('SELECT * FROM products WHERE qty = :qty OPTION max_matches = 1000', $qb->getSql());
+    }
+
+    public function testQueryWithMultipleOptions()
+    {
+        $qb = $this->getQueryBuilder();
+
+        $qb->select('*')
+            ->from('products')
+            ->where('qty = :qty')
+            ->setOption('max_matches', 1000)
+            ->setOption('max_query_time', 10)
+        ;
+
+        $this->assertEquals('SELECT * FROM products WHERE qty = :qty OPTION max_matches = 1000, max_query_time = 10', $qb->getSql());
+    }
+
     protected function getQueryBuilder()
     {
         return new QueryBuilder($this->conn);
