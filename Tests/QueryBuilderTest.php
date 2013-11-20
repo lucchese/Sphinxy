@@ -2,7 +2,6 @@
 
 namespace Brouzie\Sphinxy\Tests;
 
-use Brouzie\Sphinxy\Escaper;
 use Brouzie\Sphinxy\QueryBuilder;
 
 class QueryBuilderTest extends \PHPUnit_Framework_TestCase
@@ -12,12 +11,6 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->conn = $this->getMock('Brouzie\Sphinxy\Connection', array(), array(), '', false);
-
-        $escaper = new Escaper($this->conn);
-
-        $this->conn->expects($this->any())
-            ->method('getEscaper')
-            ->will($this->returnValue($escaper));
     }
 
     public function testInstanceCreation()

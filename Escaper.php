@@ -2,14 +2,16 @@
 
 namespace Brouzie\Sphinxy;
 
+use Brouzie\Sphinxy\Connection\ConnectionInterface;
+
 class Escaper
 {
     /**
-     * @var Connection
+     * @var ConnectionInterface
      */
     protected $conn;
 
-    public function __construct(Connection $conn)
+    public function __construct(ConnectionInterface $conn)
     {
         $this->conn = $conn;
     }

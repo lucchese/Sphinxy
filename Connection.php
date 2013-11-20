@@ -2,13 +2,16 @@
 
 namespace Brouzie\Sphinxy;
 
-use Brouzie\Sphinxy\Exception\ConnectionException;
+use Brouzie\Sphinxy\Connection\ConnectionInterface;
 use Brouzie\Sphinxy\Logging\LoggerInterface;
 use Brouzie\Sphinxy\Query\ResultSet;
 
 class Connection
 {
-    private $pdo;
+    /**
+     * @var ConnectionInterface
+     */
+    private $conn;
 
     /**
      * @var Escaper
@@ -20,9 +23,9 @@ class Connection
      */
     private $logger;
 
-    public function __construct(\PDO $pdo)
+    public function __construct(ConnectionInterface $conn)
     {
-        $this->pdo = $pdo;
+        $this->conn = $conn;
     }
 
     /**
@@ -47,12 +50,7 @@ class Connection
             $this->logger->startQuery($query);
         }
 
-        $result = $this->pdo->exec($this->prepareQuery($query, $params));
-        if (false === $result) {
-            list($code, , $message) = $this->pdo->errorInfo();
-
-            throw new ConnectionException($message, $code);
-        }
+        $result = $this->conn->exec($this->prepareQuery($query, $params));
 
         if (null !== $this->logger) {
             $this->logger->stopQuery();
@@ -67,36 +65,26 @@ class Connection
             $this->logger->startQuery($query, $params);
         }
 
-        $stmt = $this->pdo->query($this->prepareQuery($query, $params));
-        if (!is_object($stmt)) {
-            list($code, , $message) = $this->pdo->errorInfo();
-
-            throw new ConnectionException($message, $code);
-        }
-        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        $result = $this->conn->query($this->prepareQuery($query, $params));
 
         if (null !== $this->logger) {
             $this->logger->stopQuery();
         }
         //TODO: use multiquery?
-        $meta = $this->pdo->query('SHOW META')->fetchAll(\PDO::FETCH_ASSOC);
+        $meta = $this->conn->query('SHOW META');
 
         return new ResultSet($result, $meta);
     }
 
     public function quote($value)
     {
-        if (($value = $this->pdo->quote((string)$value)) === false) {
-            throw new \Exception($this->pdo->errorInfo(), $this->pdo->errorCode());
-        }
-
-        return $value;
+        return $this->conn->quote($value);
     }
 
     public function getEscaper()
     {
         if (null === $this->escaper) {
-            $this->escaper = new Escaper($this);
+            $this->escaper = new Escaper($this->conn);
         }
 
         return $this->escaper;
