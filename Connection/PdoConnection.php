@@ -3,7 +3,6 @@
 namespace Brouzie\Sphinxy\Connection;
 
 use Brouzie\Sphinxy\Exception\ConnectionException;
-use Brouzie\Sphinxy\Util;
 
 class PdoConnection implements ConnectionInterface
 {
@@ -12,8 +11,17 @@ class PdoConnection implements ConnectionInterface
      */
     private $pdo;
 
+    private $dsn;
+
+    public function __construct($dsn)
+    {
+        $this->dsn = $dsn;
+    }
+
     public function query($query)
     {
+        $this->initialize();
+
         $stmt = $this->pdo->query($query);
         if (!is_object($stmt)) {
             list($code, , $message) = $this->pdo->errorInfo();
@@ -27,6 +35,8 @@ class PdoConnection implements ConnectionInterface
 
     public function exec($query)
     {
+        $this->initialize();
+
         $result = $this->pdo->exec($query);
         if (false === $result) {
             list($code, , $message) = $this->pdo->errorInfo();
@@ -39,10 +49,19 @@ class PdoConnection implements ConnectionInterface
 
     public function quote($value)
     {
+        $this->initialize();
+
         if (false === $value = $this->pdo->quote((string)$value)) {
             throw new ConnectionException($this->pdo->errorInfo(), $this->pdo->errorCode());
         }
 
         return $value;
+    }
+
+    protected function initialize()
+    {
+        if (null === $this->pdo) {
+            $this->pdo = new \PDO($this->dsn);
+        }
     }
 }
