@@ -4,7 +4,7 @@ namespace Brouzie\Sphinxy\Logging;
 
 interface LoggerInterface
 {
-    public function startQuery($sql);
+    public function startQuery($sql, array $params = null);
 
     public function stopQuery();
 }

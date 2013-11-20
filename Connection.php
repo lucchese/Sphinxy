@@ -64,7 +64,7 @@ class Connection
     public function executeQuery($query, array $params = array())
     {
         if (null !== $this->logger) {
-            $this->logger->startQuery($query);
+            $this->logger->startQuery($query, $params);
         }
 
         $stmt = $this->pdo->query($this->prepareQuery($query, $params));
