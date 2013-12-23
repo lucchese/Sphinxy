@@ -34,12 +34,12 @@ class SphinxyQbAdapter implements AdapterInterface
     public function getNbResults()
     {
         if (null !== $this->previousResultSet) {
-            return $this->previousResultSet->getTotalCount();
+            return $this->previousResultSet->getAllowedCount();
         }
 
         $this->getSlice(0, 1);
 
-        return $this->previousResultSet->getTotalCount();
+        return $this->previousResultSet->getAllowedCount();
     }
 
     /**

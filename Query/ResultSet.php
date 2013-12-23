@@ -2,7 +2,7 @@
 
 namespace Brouzie\Sphinxy\Query;
 
-class ResultSet implements \IteratorAggregate
+class ResultSet implements \IteratorAggregate, \Countable
 {
     protected $result;
 
@@ -25,8 +25,18 @@ class ResultSet implements \IteratorAggregate
         return new \ArrayIterator($this->result);
     }
 
-    public function getTotalCount()
+    public function count()
+    {
+        return count($this->result);
+    }
+
+    public function getAllowedCount()
     {
         return $this->meta['total'];
+    }
+
+    public function getTotalCount()
+    {
+        return $this->meta['total_found'];
     }
 }
