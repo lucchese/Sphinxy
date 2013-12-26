@@ -35,7 +35,10 @@ class Registry// implements ConnectionRegistry
     }
 
     /**
-     * {@inheritDoc}
+     * @param string|null $name
+     * @return Connection
+     *
+     * @throws \InvalidArgumentException
      */
     public function getConnection($name = null)
     {
@@ -51,7 +54,7 @@ class Registry// implements ConnectionRegistry
     }
 
     /**
-     * {@inheritDoc}
+     * @return Connection[]
      */
     public function getConnections()
     {
