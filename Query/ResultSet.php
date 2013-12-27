@@ -32,11 +32,11 @@ class ResultSet implements \IteratorAggregate, \Countable
 
     public function getAllowedCount()
     {
-        return $this->meta['total'];
+        return (int)$this->meta['total'];
     }
 
     public function getTotalCount()
     {
-        return $this->meta['total_found'];
+        return (int)$this->meta['total_found'];
     }
 }
