@@ -118,6 +118,22 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('SELECT *, city = :city AS best_city FROM products WHERE qty = :qty ORDER BY price ASC, best_city DESC', $qb->getSql());
     }
 
+    public function testOrderByRandSelectExpression()
+    {
+        $qb = $this->getQueryBuilder();
+
+        $qb->select('*')
+            ->addSelect('city = :city AS best_city')
+            ->from('products')
+            ->where('qty = :qty')
+            ->orderBy('price')
+            ->addOrderBy('best_city', 'DESC')
+            ->addOrderBy('RAND()')
+        ;
+
+        $this->assertEquals('SELECT *, city = :city AS best_city FROM products WHERE qty = :qty ORDER BY price ASC, best_city DESC, RAND()', $qb->getSql());
+    }
+
     public function testGroupBy()
     {
         $qb = $this->getQueryBuilder();

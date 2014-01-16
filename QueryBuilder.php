@@ -168,12 +168,12 @@ class QueryBuilder
 
     public function orderBy($sort, $order = null)
     {
-        return $this->add('orderBy', $sort.' '.(!$order ? 'ASC' : $order));
+        return $this->add('orderBy', $sort.$this->getDirection($sort, $order));
     }
 
     public function addOrderBy($sort, $order = null)
     {
-        return $this->add('orderBy', $sort.' '.(!$order ? 'ASC' : $order), true);
+        return $this->add('orderBy', $sort.$this->getDirection($sort, $order), true);
     }
 
     public function setOption($name, $value)
@@ -421,5 +421,16 @@ class QueryBuilder
         }
 
         return implode(' AND ', $whereParts);
+    }
+
+    protected function getDirection($sort, $order)
+    {
+        if (strtoupper($order) === 'DESC') {
+            return ' DESC';
+        } elseif (null === $order && strtoupper($sort) === 'RAND()') {
+            return '';
+        }
+
+        return ' ASC';
     }
 }
