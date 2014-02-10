@@ -75,10 +75,10 @@ class Escaper
                 return 'null';
 
             case $value === true:
-                return "'1'";
+                return '1';
 
             case $value === false:
-                return "'0'";
+                return '0';
 
             case $value instanceof Expr:
                 return $value->getValue();
