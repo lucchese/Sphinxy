@@ -58,7 +58,7 @@ class IndexManager
     {
         return $this->conn->createQueryBuilder()
             ->delete($this->conn->getEscaper()->quoteIdentifier($index))
-            ->where('id IN (:ids)')
+            ->where('id IN :ids')
             ->setParameter('ids', $itemsIds)
             ->execute();
     }
