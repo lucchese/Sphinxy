@@ -30,6 +30,7 @@ class QueryBuilder
         'where' => array(),
         'groupBy' => array(),
         'orderBy' => array(),
+        'set' => array(),
         'values' => array(),
     );
 

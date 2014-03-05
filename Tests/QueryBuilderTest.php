@@ -192,6 +192,31 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals("REPLACE INTO products (id, title) VALUES (1, 'product 1')", $qb->getSql());
     }
 
+    public function testSimpleUpdate()
+    {
+        $qb = $this->getQueryBuilder();
+
+        $qb->update('products')
+            ->set('title', "'product 2'")
+            ->where('id = 1')
+        ;
+
+        $this->assertEquals("UPDATE products SET title = 'product 2' WHERE id = 1", $qb->getSql());
+    }
+
+    public function testUpdateWithMultipleSet()
+    {
+        $qb = $this->getQueryBuilder();
+
+        $qb->update('products')
+            ->set('title', "'product 2'")
+            ->set('attributes', "(1, 2, 3)")
+            ->where('id = 1')
+        ;
+
+        $this->assertEquals("UPDATE products SET title = 'product 2', attributes = (1, 2, 3) WHERE id = 1", $qb->getSql());
+    }
+
     public function testCreateParameter()
     {
         $qb = $this->getQueryBuilder();
