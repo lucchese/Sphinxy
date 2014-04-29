@@ -49,7 +49,7 @@ class Util
                 }
 
                 $find = "/(^|\W)(:$key)(\W|$)/m";
-                $repl = '${1}' . $escaper->quote($params[$key]) . '${3}';
+                $repl = '${1}'.addcslashes($escaper->quote($params[$key]), '\\').'${3}';
                 $part = preg_replace($find, $repl, $part);
                 $usedParams[$key] = true;
             }
