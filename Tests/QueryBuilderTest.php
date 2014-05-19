@@ -63,7 +63,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->setMaxResults(10)
         ;
 
-        $this->assertEquals('SELECT * FROM users LIMIT 10', $qb->getSql());
+        $this->assertEquals('SELECT * FROM users LIMIT 0, 10', $qb->getSql());
     }
 
     //TODO: offset without limit?
@@ -77,7 +77,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->setFirstResult(100)
         ;
 
-        $this->assertEquals('SELECT * FROM users LIMIT 10, 100', $qb->getSql());
+        $this->assertEquals('SELECT * FROM users LIMIT 100, 10', $qb->getSql());
     }
 
     public function testSimpleWhere()

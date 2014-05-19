@@ -356,10 +356,7 @@ class QueryBuilder
 
         //TODO: inject limit, skip as parameters for better caching? Or just move caching to upper layer
         if ($this->maxResults) {
-            $query .= ' LIMIT '.(int)$this->maxResults;
-            if ($this->firstResult) {
-                $query .= ', '.(int)$this->firstResult;
-            }
+            $query .= ' LIMIT '.(int)$this->firstResult.', '.(int)$this->maxResults;
         }
 
         if ($this->options) {
