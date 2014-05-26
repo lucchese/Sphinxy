@@ -41,7 +41,7 @@ abstract class DoctrineQbIndexer implements IndexerInterface
             ->getSingleScalarResult()
         ;
 
-        return array($min, $max);
+        return array('min' => $min, 'max' => $max);
     }
 
     public function getItemsByIds(array $ids)

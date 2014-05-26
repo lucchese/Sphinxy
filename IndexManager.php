@@ -26,25 +26,27 @@ class IndexManager
         $this->indexers = $indexers;
     }
 
-    public function reindex($index, $batchSize = 1000, $batchCallback = null)
+    public function reindex($index, $batchSize = 1000, $batchCallback = null, array $rangeCriterias = array())
     {
+        $logger = $this->conn->getLogger();
         $this->conn->setLogger(null);
 
         $indexer = $this->getIndexer($index);
-        list($minId, $maxId) = $indexer->getRangeCriterias();
+        $range = array_replace($indexer->getRangeCriterias(), $rangeCriterias);
 
-        $idFrom = $minId;
+        $idFrom = $range['min'];
         do {
             $idTo = $idFrom + $batchSize;
             if (is_callable($batchCallback)) {
-                call_user_func($batchCallback, array('id_from' => $idFrom, 'id_to' => $idTo, 'min_id' => $minId, 'max_id' => $maxId));
+                call_user_func($batchCallback, array('id_from' => $idFrom, 'id_to' => $idTo, 'min_id' => $range['min'], 'max_id' => $range['max']));
             }
 
             $items = $indexer->getItemsByInterval($idFrom, $idTo);
             $this->processItems($index, $indexer, $items);
             $idFrom = $idTo;
 
-        } while ($idFrom <= $maxId);
+        } while ($idFrom <= $range['max']);
+        $this->conn->setLogger($logger);
     }
 
     public function reindexItems($index, $itemsIds)
@@ -61,6 +63,17 @@ class IndexManager
             ->where('id IN :ids')
             ->setParameter('ids', $itemsIds)
             ->execute();
+    }
+
+    public function getIndexRange($index)
+    {
+        return $this->conn
+                ->createQueryBuilder()
+                ->select('MIN(id) AS `min`, MAX(id) AS `max`')
+                ->from($this->conn->getEscaper()->quoteIdentifier($index))
+                ->getResult()
+                ->getIterator()
+                ->current();
     }
 
     public function truncate($index)
