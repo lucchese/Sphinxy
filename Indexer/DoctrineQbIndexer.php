@@ -22,26 +22,15 @@ abstract class DoctrineQbIndexer implements IndexerInterface
 
     public function getRangeCriterias()
     {
-        //TODO: не работает select('MIN(p.id) AS min, MAX(p.id) AS max')
         $rootId = $this->getRootIdentifier();
+        $qb = $this->getQueryBuilder();
 
-        $min = $this->getQueryBuilder()
-            ->select($rootId)
-            ->orderBy($rootId, 'ASC')
+        $range = $qb
+            ->select($qb->expr()->min($rootId), $qb->expr()->max($rootId))
             ->getQuery()
-            ->setMaxResults(1)
-            ->getSingleScalarResult()
-        ;
+            ->getSingleResult();
 
-        $max = $this->getQueryBuilder()
-            ->select($rootId)
-            ->orderBy($rootId, 'DESC')
-            ->getQuery()
-            ->setMaxResults(1)
-            ->getSingleScalarResult()
-        ;
-
-        return array('min' => $min, 'max' => $max);
+        return array('min' => array_shift($range), 'max' => array_shift($range));
     }
 
     public function getItemsByIds(array $ids)
