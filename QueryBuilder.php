@@ -123,6 +123,11 @@ class QueryBuilder
         return $this->add('values', $values, true);
     }
 
+    /**
+     * @param string|static $index
+     *
+     * @return static
+     */
     public function from($index)
     {
         $this->resetQueryPart('from');
@@ -165,6 +170,7 @@ class QueryBuilder
 
     public function withinGroupOrderBy()
     {
+        //FIXME: implement
     }
 
     public function orderBy($sort, $order = null)
@@ -221,7 +227,7 @@ class QueryBuilder
         $prefix .= $this->parametersCounter;
         $this->setParameter($prefix, $value);
 
-        return ':' . $prefix;
+        return ':'.$prefix;
     }
 
     public function getParameters()
@@ -298,7 +304,7 @@ class QueryBuilder
             return $this;
         }
 
-        if ($sqlPartName == "orderBy" || $sqlPartName == "groupBy" || $sqlPartName == "select" || $sqlPartName == "set") {
+        if ($sqlPartName == 'orderBy' || $sqlPartName == 'groupBy' || $sqlPartName == 'select' || $sqlPartName == 'set') {
             foreach ($sqlPart as $part) {
                 $this->sqlParts[$sqlPartName][] = $part;
             }
@@ -342,17 +348,25 @@ class QueryBuilder
 
     protected function buildSqlForSelect()
     {
-        $query = 'SELECT ' . implode(', ', $this->sqlParts['select']) . ' FROM ';
+        $query = 'SELECT '.implode(', ', $this->sqlParts['select']).' FROM ';
 
         $fromClauses = array();
         foreach ($this->sqlParts['from'] as $from) {
-            $fromClauses[] = $from['table'];
+            $table = $from['table'];
+            if ($table instanceof static) {
+                $fromClauses[] = '('.$table->getSql().')';
+                foreach ($table->getParameters() as $pName => $pValue) {
+                    $this->setParameter($pName, $pValue);
+                }
+            } else {
+                $fromClauses[] = $table;
+            }
         }
 
         $query .= implode(', ', $fromClauses)
-            . (count($this->sqlParts['where']) ? ' WHERE ' . $this->buildWherePart() : '')
-            . ($this->sqlParts['groupBy'] ? ' GROUP BY ' . implode(', ', $this->sqlParts['groupBy']) : '')
-            . ($this->sqlParts['orderBy'] ? ' ORDER BY ' . implode(', ', $this->sqlParts['orderBy']) : '');
+            .(count($this->sqlParts['where']) ? ' WHERE '.$this->buildWherePart() : '')
+            .($this->sqlParts['groupBy'] ? ' GROUP BY '.implode(', ', $this->sqlParts['groupBy']) : '')
+            .($this->sqlParts['orderBy'] ? ' ORDER BY '.implode(', ', $this->sqlParts['orderBy']) : '');
 
         //TODO: inject limit, skip as parameters for better caching? Or just move caching to upper layer
         if ($this->maxResults) {
@@ -362,9 +376,9 @@ class QueryBuilder
         if ($this->options) {
             $optionsClauses = array();
             foreach ($this->options as $optionName => $optionValue) {
-                $optionsClauses[] = $optionName . ' = ' . $optionValue;
+                $optionsClauses[] = $optionName.' = '.$optionValue;
             }
-            $query .= ' OPTION ' . implode(', ', $optionsClauses);
+            $query .= ' OPTION '.implode(', ', $optionsClauses);
         }
 
         return $query;
@@ -382,13 +396,13 @@ class QueryBuilder
         foreach ($this->sqlParts['values'] as $value) {
             //TODO: check columns
             $columns = array_keys($value);
-            $valuesSets[] = '(' . implode(', ', $value) . ')';
+            $valuesSets[] = '('.implode(', ', $value).')';
         }
 
         //TODO: only one index allowed in insert?
         $query = ($this->type === self::TYPE_REPLACE ? 'REPLACE' : 'INSERT')
-            . ' INTO ' . implode(', ', $fromClauses)
-            . ' (' . implode(', ', $columns) . ') VALUES ' . implode(', ', $valuesSets);
+            .' INTO '.implode(', ', $fromClauses)
+            .' ('.implode(', ', $columns).') VALUES '.implode(', ', $valuesSets);
 
         return $query;
     }
@@ -425,7 +439,9 @@ class QueryBuilder
     {
         if (strtoupper($order) === 'DESC') {
             return ' DESC';
-        } elseif (null === $order && strtoupper($sort) === 'RAND()') {
+        }
+
+        if (null === $order && strtoupper($sort) === 'RAND()') {
             return '';
         }
 

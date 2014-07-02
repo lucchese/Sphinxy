@@ -80,6 +80,26 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('SELECT * FROM users LIMIT 100, 10', $qb->getSql());
     }
 
+    public function testSelectWithSubselect()
+    {
+        $innerQb = $this->getQueryBuilder();
+        $innerQb->select('id, name, TESTUDF(id) AS udf_result')
+            ->from('users')
+            ->where('id > :id')
+            ->setParameter('id', 5)
+            ->orderBy('name')
+        ;
+
+        $qb = $this->getQueryBuilder();
+        $qb->select('*')
+            ->from($innerQb)
+            ->orderBy('udf_result', 'DESC')
+        ;
+
+        $this->assertEquals('SELECT * FROM (SELECT id, name, TESTUDF(id) AS udf_result FROM users WHERE id > :id ORDER BY name ASC) ORDER BY udf_result DESC', $qb->getSql());
+        $this->assertEquals(array('id' => 5), $qb->getParameters());
+    }
+
     public function testSimpleWhere()
     {
         $qb = $this->getQueryBuilder();
