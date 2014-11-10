@@ -49,6 +49,11 @@ class QueryBuilder
         $this->conn = $conn;
     }
 
+    /**
+     * @param null $select
+     *
+     * @return $this|static
+     */
     public function select($select = null)
     {
         $this->type = self::TYPE_SELECT;

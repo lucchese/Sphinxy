@@ -158,7 +158,7 @@ class Escaper
      */
     public function halfEscapeMatch($string)
     {
-        $from_to = array(
+        $fromTo = array(
             '\\' => '\\\\',
             '(' => '\(',
             ')' => '\)',
@@ -172,19 +172,19 @@ class Escaper
             '=' => '\=',
         );
 
-        $string = str_replace(array_keys($from_to), array_values($from_to), $string);
+        $string = str_replace(array_keys($fromTo), array_values($fromTo), $string);
 
         // this manages to lower the error rate by a lot
-        if (substr_count($string, '"') % 2 !== 0) {
+        if (mb_substr_count($string, '"') % 2 !== 0) {
             $string .= '"';
         }
 
-        $from_to_preg = array(
+        $fromToPreg = array(
             "'\"([^\s]+)-([^\s]*)\"'" => "\\1\-\\2",
             "'([^\s]+)-([^\s]*)'" => "\"\\1\-\\2\""
         );
 
-        $string = preg_replace(array_keys($from_to_preg), array_values($from_to_preg), $string);
+        $string = preg_replace(array_keys($fromToPreg), array_values($fromToPreg), $string);
 
         return $string;
     }

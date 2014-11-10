@@ -24,7 +24,7 @@ class PdoConnection implements ConnectionInterface
 
         $stmt = $this->pdo->query($query);
         if (!is_object($stmt)) {
-            list($code, , $message) = $this->pdo->errorInfo();
+            list(, $code, $message) = $this->pdo->errorInfo();
 
             throw new ConnectionException($message, $code);
         }
@@ -39,7 +39,7 @@ class PdoConnection implements ConnectionInterface
 
         $result = $this->pdo->exec($query);
         if (false === $result) {
-            list($code, , $message) = $this->pdo->errorInfo();
+            list(, $code, $message) = $this->pdo->errorInfo();
 
             throw new ConnectionException($message, $code);
         }

@@ -90,6 +90,9 @@ class Connection
         return $this->escaper;
     }
 
+    /**
+     * @return QueryBuilder
+     */
     public function createQueryBuilder()
     {
         return new QueryBuilder($this);
