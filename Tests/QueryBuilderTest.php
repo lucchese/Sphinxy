@@ -243,8 +243,8 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
         $qb->select('*')
             ->from('products')
-            ->where('qty = ' . $qb->createParameter(10))
-            ->andWhere('price > ' . $qb->createParameter(20))
+            ->where('qty = '.$qb->createParameter(10))
+            ->andWhere('price > '.$qb->createParameter(20))
         ;
 
         $this->assertEquals('SELECT * FROM products WHERE qty = :gen_1 AND price > :gen_2', $qb->getSql());
@@ -257,12 +257,13 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
         $qb->select('*')
             ->from('products')
-            ->where('qty = ' . $qb->createParameter(10))
-            ->andWhere('price > ' . $qb->createParameter(20, 'price'))
+            ->where('qty = '.$qb->createParameter(10))
+            ->andWhere('price > '.$qb->createParameter(20, 'price'))
+            ->andWhere('attributes.10 = '.$qb->createParameter(101, 'attributes.10'))
         ;
 
-        $this->assertEquals('SELECT * FROM products WHERE qty = :gen_1 AND price > :price2', $qb->getSql());
-        $this->assertEquals(array('gen_1' => 10, 'price2' => 20), $qb->getParameters());
+        $this->assertEquals('SELECT * FROM products WHERE qty = :gen_1 AND price > :price2 AND attributes.10 = :attributes_103', $qb->getSql());
+        $this->assertEquals(array('gen_1' => 10, 'price2' => 20, 'attributes_103' => 101), $qb->getParameters());
     }
 
     public function testQueryWithOption()

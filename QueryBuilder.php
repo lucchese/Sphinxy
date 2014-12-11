@@ -221,15 +221,15 @@ class QueryBuilder
     /**
      * Creates a new named parameter and bind the value $value to it.
      *
-     * @param mixed  $value
+     * @param mixed $value
      * @param string $prefix The name to bind with.
      *
      * @return string the placeholder name used.
      */
     public function createParameter($value, $prefix = 'gen_')
     {
-        $this->parametersCounter++;
-        $prefix .= $this->parametersCounter;
+        $prefix = preg_replace('/[^a-z0-9_]/ui', '_', $prefix);
+        $prefix .= ++$this->parametersCounter;
         $this->setParameter($prefix, $value);
 
         return ':'.$prefix;
