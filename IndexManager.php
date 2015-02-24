@@ -49,11 +49,15 @@ class IndexManager
         $this->conn->setLogger($logger);
     }
 
-    public function reindexItems($index, $itemsIds)
+    public function reindexItems($index, $itemsIds, $batchSize = 100)
     {
         $indexer = $this->getIndexer($index);
-        $items = $indexer->getItemsByIds($itemsIds);
-        $this->processItems($index, $indexer, $items);
+
+        do {
+            $itemsIdsToProcess = array_splice($itemsIds, 0, $batchSize);
+            $items = $indexer->getItemsByIds($itemsIdsToProcess);
+            $this->processItems($index, $indexer, $items);
+        } while ($itemsIdsToProcess);
     }
 
     public function removeItems($index, $itemsIds)
