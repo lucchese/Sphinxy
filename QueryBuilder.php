@@ -178,14 +178,19 @@ class QueryBuilder
         //FIXME: implement
     }
 
-    public function orderBy($sort, $order = null)
+    public function facet($facet, $by = null, $order = null, $direction = null, $limit = null, $skip = null)
     {
-        return $this->add('orderBy', $sort.$this->getDirection($sort, $order));
+        // ...
     }
 
-    public function addOrderBy($sort, $order = null)
+    public function orderBy($order, $direction = null)
     {
-        return $this->add('orderBy', $sort.$this->getDirection($sort, $order), true);
+        return $this->add('orderBy', $order.$this->getDirection($order, $direction));
+    }
+
+    public function addOrderBy($order, $direction = null)
+    {
+        return $this->add('orderBy', $order.$this->getDirection($order, $direction), true);
     }
 
     public function setOption($name, $value)
@@ -203,10 +208,10 @@ class QueryBuilder
         return $this;
     }
 
-    public function setFirstResult($offset)
+    public function setFirstResult($skip)
     {
         $this->state = self::STATE_DIRTY;
-        $this->firstResult = $offset;
+        $this->firstResult = $skip;
 
         return $this;
     }
@@ -440,13 +445,13 @@ class QueryBuilder
         return implode(' AND ', $whereParts);
     }
 
-    protected function getDirection($sort, $order)
+    protected function getDirection($order, $direction)
     {
-        if (strtoupper($order) === 'DESC') {
+        if (strtoupper($direction) === 'DESC') {
             return ' DESC';
         }
 
-        if (null === $order && strtoupper($sort) === 'RAND()') {
+        if (null === $direction && strtoupper($order) === 'RAND()') {
             return '';
         }
 
