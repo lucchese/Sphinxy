@@ -55,4 +55,12 @@ class SphinxyQbAdapter implements AdapterInterface
 
         return $this->previousResultSet->getIterator();
     }
+
+    /**
+     * @return ResultSet|null
+     */
+    public function getPreviousResultSet()
+    {
+        return $this->previousResultSet;
+    }
 }
