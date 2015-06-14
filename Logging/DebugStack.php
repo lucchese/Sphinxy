@@ -2,9 +2,15 @@
 
 namespace Brouzie\Sphinxy\Logging;
 
+/**
+ * Includes executed SQLs in a Debug Stack.
+ *
+ * @author Konstantin.Myakshin <koc-dp@yandex.ru>
+ */
 class DebugStack implements LoggerInterface
 {
     /**
+     * READONLY
      * Executed SQL queries.
      *
      * @var array
@@ -12,31 +18,22 @@ class DebugStack implements LoggerInterface
     public $queries = array();
 
     /**
-     * If Debug Stack is enabled (log queries) or not.
-     *
-     * @var boolean
-     */
-    public $enabled = true;
-
-    /**
      * @var float|null
      */
-    public $start = null;
+    protected $start;
 
     /**
      * @var integer
      */
-    public $currentQuery = 0;
+    protected $currentQuery = 0;
 
     /**
      * {@inheritdoc}
      */
     public function startQuery($sql, array $params = null)
     {
-        if ($this->enabled) {
-            $this->start = microtime(true);
-            $this->queries[++$this->currentQuery] = array('sql' => $sql, 'params' => $params, 'executionMS' => 0);
-        }
+        $this->start = microtime(true);
+        $this->queries[++$this->currentQuery] = array('sql' => $sql, 'params' => $params, 'executionMS' => 0);
     }
 
     /**
@@ -44,8 +41,6 @@ class DebugStack implements LoggerInterface
      */
     public function stopQuery()
     {
-        if ($this->enabled) {
-            $this->queries[$this->currentQuery]['executionMS'] = microtime(true) - $this->start;
-        }
+        $this->queries[$this->currentQuery]['executionMS'] = microtime(true) - $this->start;
     }
 }
