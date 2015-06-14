@@ -17,9 +17,8 @@
         "pagerfanta/pagerfanta": "1.*@stable"
     },
     "autoload": {
-        "psr-0": {
+        "psr-4": {
             "Brouzie\\Sphinxy\\": ""
         }
-    },
-    "target-dir" : "Brouzie/Sphinxy"
+    }
 }
