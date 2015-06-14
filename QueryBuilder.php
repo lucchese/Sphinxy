@@ -314,7 +314,7 @@ class QueryBuilder
             return $this;
         }
 
-        if ($sqlPartName == 'orderBy' || $sqlPartName == 'groupBy' || $sqlPartName == 'select' || $sqlPartName == 'set') {
+        if ($sqlPartName === 'orderBy' || $sqlPartName === 'groupBy' || $sqlPartName === 'select' || $sqlPartName === 'set') {
             foreach ($sqlPart as $part) {
                 $this->sqlParts[$sqlPartName][] = $part;
             }
@@ -421,7 +421,7 @@ class QueryBuilder
     {
         $table = $this->sqlParts['from']['table'];
         $query = 'UPDATE '.$table
-            .' SET '.implode(", ", $this->sqlParts['set'])
+            .' SET '.implode(', ', $this->sqlParts['set'])
             .(count($this->sqlParts['where']) ? ' WHERE '.$this->buildWherePart() : '');
 
         return $query;

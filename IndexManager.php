@@ -2,7 +2,6 @@
 
 namespace Brouzie\Sphinxy;
 
-use Brouzie\Sphinxy\Registry;
 use Brouzie\Sphinxy\Indexer\IndexerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 

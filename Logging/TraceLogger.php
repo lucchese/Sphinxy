@@ -27,7 +27,7 @@ class TraceLogger extends DebugStack
 
     private function getBactrace()
     {
-        //TODO: format args
+        //TODO: format args using ValueExporter() class
         $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
         foreach ($backtrace as $key => $debug) {
