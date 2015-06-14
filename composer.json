@@ -1,15 +1,16 @@
 {
     "name": "brouzie/sphinxy",
     "description": "Sphinx library",
+    "keywords": ["sphinx", "sphinxsearch", "sphinxy"],
     "license": "MIT",
     "authors": [
         {
-            "name": "Konstantin.Myakshin",
+            "name": "Konstantin Myakshin",
             "email": "koc-dp@yandex.ru"
         }
     ],
     "require": {
-        "php": ">=5.3.8"
+        "php": ">=5.4.0"
     },
     "require-dev": {
         "phpunit/phpunit": "3.7.*@stable",
