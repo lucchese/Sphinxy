@@ -4,14 +4,19 @@ namespace Brouzie\Sphinxy\Pagerfanta\Adapter;
 
 use Brouzie\Sphinxy\Query\ResultSet;
 use Brouzie\Sphinxy\QueryBuilder;
-use Pagerfanta\Adapter\AdapterInterface;
+use Pagerfanta\Adapter\LazyAdapterInterface;
+
+// forward compatibility layer
+if (!interface_exists('Pagerfanta\Adapter\LazyAdapterInterface')) {
+    class_alias('Pagerfanta\Adapter\AdapterInterface', 'Pagerfanta\Adapter\LazyAdapterInterface');
+}
 
 /**
  * Sphinxy Pagerfanta Adapter
  *
  * @author Konstantin.Myakshin <koc-dp@yandex.ru>
  */
-class SphinxyQbAdapter implements AdapterInterface
+class SphinxyQbAdapter implements LazyAdapterInterface
 {
     /**
      * @var QueryBuilder
