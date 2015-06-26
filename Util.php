@@ -58,7 +58,7 @@ class Util
         if (count($params) > count($usedParams)) {
             throw new ExtraParametersException(sprintf(
                 'Extra parameters found: %s.',
-                implode(array_keys(array_diff_key($params, $usedParams)))
+                implode(', ', array_keys(array_diff_key($params, $usedParams)))
             ));
         }
 
