@@ -14,7 +14,7 @@ if (!interface_exists('Pagerfanta\Adapter\LazyAdapterInterface')) {
 /**
  * Sphinxy Pagerfanta Adapter
  *
- * @author Konstantin.Myakshin <koc-dp@yandex.ru>
+ * @author Konstantin Myakshin <koc-dp@yandex.ru>
  */
 class SphinxyQbAdapter implements LazyAdapterInterface
 {

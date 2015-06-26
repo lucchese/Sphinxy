@@ -5,7 +5,7 @@ namespace Brouzie\Sphinxy\Logging;
 /**
  * Includes executed SQLs in a Debug Stack.
  *
- * @author Konstantin.Myakshin <koc-dp@yandex.ru>
+ * @author Konstantin Myakshin <koc-dp@yandex.ru>
  */
 class DebugStack implements LoggerInterface
 {

@@ -5,7 +5,7 @@ namespace Brouzie\Sphinxy\Logging;
 /**
  * Logger that store backtraces
  *
- * @author Konstantin.Myakshin <koc-dp@yandex.ru>
+ * @author Konstantin Myakshin <koc-dp@yandex.ru>
  */
 class TraceLogger extends DebugStack
 {
