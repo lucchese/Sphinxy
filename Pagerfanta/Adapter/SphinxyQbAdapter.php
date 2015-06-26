@@ -37,9 +37,11 @@ class SphinxyQbAdapter implements AdapterInterface
             return $this->previousResultSet->getAllowedCount();
         }
 
-        $this->getSlice(0, 1);
-
-        return $this->previousResultSet->getAllowedCount();
+        return $this->qb
+            ->setMaxResults(1)
+            ->setFirstResult(0)
+            ->getResult()
+            ->getAllowedCount();
     }
 
     /**
@@ -47,8 +49,7 @@ class SphinxyQbAdapter implements AdapterInterface
      */
     public function getSlice($offset, $length)
     {
-        $this->previousResultSet = $this
-            ->qb
+        $this->previousResultSet = $this->qb
             ->setMaxResults($length)
             ->setFirstResult($offset)
             ->getResult();
