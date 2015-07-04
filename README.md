@@ -1,6 +1,8 @@
 Sphinxy
 =======
 
+[![Join the chat at https://gitter.im/Koc/Sphinxy](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Koc/Sphinxy?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 
 [![Build Status](https://travis-ci.org/Koc/Sphinxy.png?branch=master)](https://travis-ci.org/Koc/Sphinxy)
 [![Code Coverage](https://scrutinizer-ci.com/g/Koc/Sphinxy/badges/coverage.png?b=master)](https://scrutinizer-ci.com/g/Koc/Sphinxy/?branch=master)
