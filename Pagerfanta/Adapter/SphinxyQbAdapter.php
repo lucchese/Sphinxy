@@ -28,13 +28,16 @@ class SphinxyQbAdapter implements LazyAdapterInterface
      */
     protected $previousResultSet;
 
-    public function __construct(QueryBuilder $qb)
+    protected $resultsFilterCallback;
+
+    public function __construct(QueryBuilder $qb, callable $resultsFilterCallback = null)
     {
         $this->qb = $qb;
+        $this->resultsFilterCallback = $resultsFilterCallback;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getNbResults()
     {
@@ -50,7 +53,7 @@ class SphinxyQbAdapter implements LazyAdapterInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getSlice($offset, $length)
     {
@@ -59,7 +62,13 @@ class SphinxyQbAdapter implements LazyAdapterInterface
             ->setFirstResult($offset)
             ->getResult();
 
-        return $this->previousResultSet->getIterator();
+        $result = $this->previousResultSet->getIterator();
+
+        if (is_callable($this->resultsFilterCallback)) {
+            $result = call_user_func($this->resultsFilterCallback, $result);
+        }
+
+        return $result;
     }
 
     /**
