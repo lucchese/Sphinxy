@@ -30,6 +30,7 @@ class QueryBuilder
         'where' => array(),
         'groupBy' => array(),
         'groupByLimit' => null,
+        'withinGroupOrderBy' => null,
         'orderBy' => array(),
         'set' => array(),
         'values' => array(),
@@ -77,7 +78,6 @@ class QueryBuilder
     public function insert($index)
     {
         $this->type = self::TYPE_INSERT;
-
         $this->resetQueryPart('from');
 
         return $this->add('from', array('table' => $index), true);
@@ -86,7 +86,6 @@ class QueryBuilder
     public function replace($index)
     {
         $this->type = self::TYPE_REPLACE;
-
         $this->resetQueryPart('from');
 
         return $this->add('from', array('table' => $index), true);
@@ -123,9 +122,9 @@ class QueryBuilder
         return $this->add('from', array('table' => $index), true);
     }
 
-    public function addFrom($inxex)
+    public function addFrom($index)
     {
-        return $this->add('from', array('table' => $inxex), true);
+        return $this->add('from', array('table' => $index), true);
     }
 
     public function where($where)
@@ -142,6 +141,8 @@ class QueryBuilder
 
     public function groupBy($groupBy, $limit = null)
     {
+        $this->resetQueryPart('groupBy');
+
         return $this
             ->add('groupBy', $groupBy)
             ->add('groupByLimit', $limit);
@@ -154,7 +155,7 @@ class QueryBuilder
 
     public function withinGroupOrderBy($order, $direction = null)
     {
-        //FIXME: implement
+        return $this->add('withinGroupOrderBy', $order.$this->getDirection($order, $direction));
     }
 
     public function facet($facet, $by = null, $order = null, $direction = null, $limit = null, $skip = null)
@@ -274,7 +275,7 @@ class QueryBuilder
      * @param string $sqlPart
      * @param boolean $append
      *
-     * @return static This QueryBuilder instance.
+     * @return $this This QueryBuilder instance.
      */
     protected function add($sqlPartName, $sqlPart, $append = false)
     {
@@ -327,9 +328,7 @@ class QueryBuilder
 
     protected function resetQueryPart($queryPartName)
     {
-        $this->sqlParts[$queryPartName] = is_array($this->sqlParts[$queryPartName])
-            ? array() : null;
-
+        $this->sqlParts[$queryPartName] = is_array($this->sqlParts[$queryPartName]) ? array() : null;
         $this->state = self::STATE_DIRTY;
 
         return $this;
@@ -399,9 +398,7 @@ class QueryBuilder
     protected function buildSqlForUpdate()
     {
         $table = $this->sqlParts['from']['table'];
-        $query = 'UPDATE '.$table
-            .' SET '.implode(', ', $this->sqlParts['set'])
-            .$this->buildWherePart();
+        $query = 'UPDATE '.$table.' SET '.implode(', ', $this->sqlParts['set']).$this->buildWherePart();
 
         return $query;
     }
@@ -434,7 +431,13 @@ class QueryBuilder
             return '';
         }
 
-        return ' GROUP'.($this->sqlParts['groupByLimit'] ? ' '.$this->sqlParts['groupByLimit'] : '').' BY '.implode(', ', $this->sqlParts['groupBy']);
+        $sql = ' GROUP'.($this->sqlParts['groupByLimit'] ? ' '.$this->sqlParts['groupByLimit'] : '')
+            .' BY '.implode(', ', $this->sqlParts['groupBy']);
+        if ($this->sqlParts['withinGroupOrderBy']) {
+            $sql .= ' WITHIN GROUP ORDER BY '.$this->sqlParts['withinGroupOrderBy'];
+        }
+
+        return $sql;
     }
 
     protected function getDirection($order, $direction)
