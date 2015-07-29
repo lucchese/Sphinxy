@@ -29,6 +29,7 @@ class QueryBuilder
         'from' => array(),
         'where' => array(),
         'groupBy' => array(),
+        'groupByLimit' => null,
         'orderBy' => array(),
         'set' => array(),
         'values' => array(),
@@ -36,9 +37,9 @@ class QueryBuilder
 
     private $options = array();
 
-    private $firstResult = null;
+    private $firstResult;
 
-    private $maxResults = null;
+    private $maxResults;
 
     private $parametersCounter = 0;
 
@@ -49,15 +50,10 @@ class QueryBuilder
         $this->conn = $conn;
     }
 
-    /**
-     * @param null $select
-     *
-     * @return $this|static
-     */
     public function select($select = null)
     {
         $this->type = self::TYPE_SELECT;
-        if (empty($select)) {
+        if (null === $select) {
             return $this;
         }
 
@@ -75,9 +71,7 @@ class QueryBuilder
     {
         $this->type = self::TYPE_UPDATE;
 
-        return $this->add('from', array(
-                'table' => $index,
-            ));
+        return $this->add('from', array('table' => $index));
     }
 
     public function insert($index)
@@ -86,9 +80,7 @@ class QueryBuilder
 
         $this->resetQueryPart('from');
 
-        return $this->add('from', array(
-                'table' => $index,
-            ), true);
+        return $this->add('from', array('table' => $index), true);
     }
 
     public function replace($index)
@@ -97,23 +89,19 @@ class QueryBuilder
 
         $this->resetQueryPart('from');
 
-        return $this->add('from', array(
-                'table' => $index,
-            ), true);
+        return $this->add('from', array('table' => $index), true);
     }
 
     public function delete($index)
     {
         $this->type = self::TYPE_DELETE;
 
-        return $this->add('from', array(
-                'table' => $index,
-            ));
+        return $this->add('from', array('table' => $index));
     }
 
     public function set($key, $value)
     {
-        return $this->add('set', $key .' = ' . $value, true);
+        return $this->add('set', $key.' = '.$value, true);
     }
 
     public function values(array $values)
@@ -128,25 +116,16 @@ class QueryBuilder
         return $this->add('values', $values, true);
     }
 
-    /**
-     * @param string|static $index
-     *
-     * @return static
-     */
     public function from($index)
     {
         $this->resetQueryPart('from');
 
-        return $this->add('from', array(
-                'table' => $index,
-            ), true);
+        return $this->add('from', array('table' => $index), true);
     }
 
     public function addFrom($inxex)
     {
-        return $this->add('from', array(
-                'table' => $inxex,
-            ), true);
+        return $this->add('from', array('table' => $inxex), true);
     }
 
     public function where($where)
@@ -163,17 +142,17 @@ class QueryBuilder
 
     public function groupBy($groupBy, $limit = null)
     {
-        //FIXME: add support of limit
-        return $this->add('groupBy', $groupBy);
+        return $this
+            ->add('groupBy', $groupBy)
+            ->add('groupByLimit', $limit);
     }
 
-    public function addGroupBy($groupBy, $limit = null)
+    public function addGroupBy($groupBy)
     {
-        //FIXME: add support of limit
         return $this->add('groupBy', $groupBy, true);
     }
 
-    public function withinGroupOrderBy()
+    public function withinGroupOrderBy($order, $direction = null)
     {
         //FIXME: implement
     }
@@ -374,8 +353,8 @@ class QueryBuilder
         }
 
         $query .= implode(', ', $fromClauses)
-            .(count($this->sqlParts['where']) ? ' WHERE '.$this->buildWherePart() : '')
-            .($this->sqlParts['groupBy'] ? ' GROUP BY '.implode(', ', $this->sqlParts['groupBy']) : '')
+            .$this->buildWherePart()
+            .$this->buildGroupByPart()
             .($this->sqlParts['orderBy'] ? ' ORDER BY '.implode(', ', $this->sqlParts['orderBy']) : '');
 
         //TODO: inject limit, skip as parameters for better caching? Or just move caching to upper layer
@@ -422,7 +401,7 @@ class QueryBuilder
         $table = $this->sqlParts['from']['table'];
         $query = 'UPDATE '.$table
             .' SET '.implode(', ', $this->sqlParts['set'])
-            .(count($this->sqlParts['where']) ? ' WHERE '.$this->buildWherePart() : '');
+            .$this->buildWherePart();
 
         return $query;
     }
@@ -430,19 +409,32 @@ class QueryBuilder
     protected function buildSqlForDelete()
     {
         $table = $this->sqlParts['from']['table'];
-        $query = 'DELETE FROM '.$table.(count($this->sqlParts['where']) ? ' WHERE '.$this->buildWherePart() : '');
+        $query = 'DELETE FROM '.$table.$this->buildWherePart();
 
         return $query;
     }
 
     protected function buildWherePart()
     {
+        if (!$this->sqlParts['where']) {
+            return '';
+        }
+
         $whereParts = array();
         foreach ($this->sqlParts['where'] as $where) {
             $whereParts[] = $where[0];
         }
 
-        return implode(' AND ', $whereParts);
+        return ' WHERE '.implode(' AND ', $whereParts);
+    }
+
+    protected function buildGroupByPart()
+    {
+        if (!$this->sqlParts['groupBy']) {
+            return '';
+        }
+
+        return ' GROUP'.($this->sqlParts['groupByLimit'] ? ' '.$this->sqlParts['groupByLimit'] : '').' BY '.implode(', ', $this->sqlParts['groupBy']);
     }
 
     protected function getDirection($order, $direction)

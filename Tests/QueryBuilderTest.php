@@ -165,6 +165,17 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('SELECT * FROM products GROUP BY company_id', $qb->getSql());
     }
 
+    public function testGroupByWithLimit()
+    {
+        $qb = $this->getQueryBuilder();
+
+        $qb->select('*')
+            ->from('products')
+            ->groupBy('company_id', 3);
+
+        $this->assertEquals('SELECT * FROM products GROUP 3 BY company_id', $qb->getSql());
+    }
+
     public function testWhereWithMultipleGroupBy()
     {
         $qb = $this->getQueryBuilder();
