@@ -22,12 +22,12 @@ class PdoConnection implements ConnectionInterface
     {
         $this->initialize();
 
-        $stmt = $this->pdo->query($query);
-        if (!is_object($stmt)) {
-            list(, $code, $message) = $this->pdo->errorInfo();
-
-            throw new ConnectionException($message, $code);
+        try {
+            $stmt = $this->pdo->query($query);
+        } catch (\PDOException $e) {
+            throw new ConnectionException($e->getMessage(), $e->getCode(), $e);
         }
+
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
 
         return $result;
@@ -37,14 +37,11 @@ class PdoConnection implements ConnectionInterface
     {
         $this->initialize();
 
-        $result = $this->pdo->exec($query);
-        if (false === $result) {
-            list(, $code, $message) = $this->pdo->errorInfo();
-
-            throw new ConnectionException($message, $code);
+        try {
+            return $this->pdo->exec($query);
+        } catch (\PDOException $e) {
+            throw new ConnectionException($e->getMessage(), $e->getCode(), $e);
         }
-
-        return $result;
     }
 
     public function quote($value)
@@ -61,7 +58,11 @@ class PdoConnection implements ConnectionInterface
     protected function initialize()
     {
         if (null === $this->pdo) {
-            $this->pdo = new \PDO($this->dsn);
+            try {
+                $this->pdo = new \PDO($this->dsn, null, null, array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION));
+            } catch (\PDOException $e) {
+                throw new ConnectionException($e->getMessage(), $e->getCode(), $e);
+            }
         }
     }
 }
