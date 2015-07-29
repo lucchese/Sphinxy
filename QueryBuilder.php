@@ -272,8 +272,8 @@ class QueryBuilder
      * 'groupBy', 'having' and 'orderBy'.
      *
      * @param string $sqlPartName
-     * @param string $sqlPart
-     * @param boolean $append
+     * @param string|array $sqlPart
+     * @param bool $append
      *
      * @return $this This QueryBuilder instance.
      */
@@ -319,7 +319,7 @@ class QueryBuilder
      *
      * @param string $queryPartName
      *
-     * @return mixed
+     * @return string|array
      */
     protected function getQueryPart($queryPartName)
     {
