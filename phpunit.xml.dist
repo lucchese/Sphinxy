@@ -1,5 +1,13 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="./Tests/bootstrap.php" colors="true">
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="http://schema.phpunit.de/4.7/phpunit.xsd"
+         backupGlobals="false"
+         colors="true"
+         bootstrap="vendor/autoload.php"
+        >
+    <php>
+        <ini name="error_reporting" value="-1" />
+        <ini name="memory_limit" value="-1" />
+    </php>
     <testsuites>
         <testsuite name="Sphinxy test suite">
             <directory suffix="Test.php">./Tests</directory>
