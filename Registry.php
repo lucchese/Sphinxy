@@ -25,7 +25,9 @@ class Registry
     }
 
     /**
-     * {@inheritDoc}
+     * Gets the default connection name.
+     *
+     * @return string
      */
     public function getDefaultConnectionName()
     {
@@ -33,10 +35,11 @@ class Registry
     }
 
     /**
-     * @param string|null $name
-     * @return Connection
+     * Gets the named connection.
      *
-     * @throws \InvalidArgumentException
+     * @param string $name The connection name (null for the default one).
+     *
+     * @return Connection
      */
     public function getConnection($name = null)
     {
@@ -52,6 +55,8 @@ class Registry
     }
 
     /**
+     * Gets an array of all registered connections.
+     *
      * @return Connection[]
      */
     public function getConnections()
@@ -60,7 +65,9 @@ class Registry
     }
 
     /**
-     * {@inheritDoc}
+     * Gets all connection names.
+     *
+     * @return array
      */
     public function getConnectionNames()
     {
