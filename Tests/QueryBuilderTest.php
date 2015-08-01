@@ -188,6 +188,19 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('SELECT * FROM products GROUP BY company_id WITHIN GROUP ORDER BY is_special_offer DESC', $qb->getSql());
     }
 
+    public function testFacet()
+    {
+        $qb = $this->getQueryBuilder();
+
+        $qb->select('*')
+            ->from('products')
+            ->facet(array('brand_name', 'brand_id' => 'brand'), 'brand_id', 'brand_name')
+            ->facet('attributes', null, 'COUNT(*)', 'DESC');
+        //TODO: add test for limit/skip
+
+        $this->assertEquals('SELECT * FROM products FACET brand_name, brand_id AS brand BY brand_id ORDER BY brand_name ASC, FACET attributes ORDER BY COUNT(*) DESC', $qb->getSql());
+    }
+
     public function testWhereWithMultipleGroupBy()
     {
         $qb = $this->getQueryBuilder();
@@ -258,6 +271,17 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         ;
 
         $this->assertEquals("UPDATE products SET title = 'product 2', attributes = (1, 2, 3) WHERE id = 1", $qb->getSql());
+    }
+
+    public function testSimpleDelete()
+    {
+        $qb = $this->getQueryBuilder();
+
+        $qb->delete('products')
+            ->where('id = 1')
+        ;
+
+        $this->assertEquals("DELETE FROM products WHERE id = 1", $qb->getSql());
     }
 
     public function testCreateParameter()

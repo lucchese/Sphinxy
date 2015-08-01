@@ -10,19 +10,12 @@ class QueryBuilder
     const TYPE_DELETE = 4;
     const TYPE_REPLACE = 5;
 
-    const STATE_DIRTY = 0;
-    const STATE_CLEAN = 1;
-
     /**
      * @var Connection
      */
     private $conn;
 
     private $type;
-
-    private $state;
-
-    private $sql;
 
     private $sqlParts = array(
         'select' => array(),
@@ -32,19 +25,37 @@ class QueryBuilder
         'groupByLimit' => null,
         'withinGroupOrderBy' => null,
         'orderBy' => array(),
+        'facet' => array(),
         'set' => array(),
         'values' => array(),
+        'options' => array(),
+        'firstResult' => 0,
+        'maxResults' => null,
     );
 
-    private $options = array();
+    private static $multipleParts = array(
+        'select' => true,
+        'from' => true,
+        'where' => true,
+        'groupBy' => true,
+        'groupByLimit' => false,
+        'withinGroupOrderBy' => false,
+        'orderBy' => true,
+        'facet' => true,
+        'set' => true,
+        'values' => true,
+        'options' => true,
+        'firstResult' => false,
+        'maxResults' => false,
+    );
 
-    private $firstResult;
+    private $isDirty = true;
 
-    private $maxResults;
+    private $sql;
+
+    private $parameters = array();
 
     private $parametersCounter = 0;
-
-    private $params = array();
 
     public function __construct(Connection $conn)
     {
@@ -78,17 +89,15 @@ class QueryBuilder
     public function insert($index)
     {
         $this->type = self::TYPE_INSERT;
-        $this->resetQueryPart('from');
 
-        return $this->add('from', array('table' => $index), true);
+        return $this->add('from', array('table' => $index));
     }
 
     public function replace($index)
     {
         $this->type = self::TYPE_REPLACE;
-        $this->resetQueryPart('from');
 
-        return $this->add('from', array('table' => $index), true);
+        return $this->add('from', array('table' => $index));
     }
 
     public function delete($index)
@@ -100,14 +109,12 @@ class QueryBuilder
 
     public function set($key, $value)
     {
-        return $this->add('set', $key.' = '.$value, true);
+        return $this->add('set', compact('key', 'value'), true);
     }
 
     public function values(array $values)
     {
-        $this->resetQueryPart('values');
-
-        return $this->add('values', $values, true);
+        return $this->add('values', $values);
     }
 
     public function addValues(array $values)
@@ -117,9 +124,7 @@ class QueryBuilder
 
     public function from($index)
     {
-        $this->resetQueryPart('from');
-
-        return $this->add('from', array('table' => $index), true);
+        return $this->add('from', array('table' => $index));
     }
 
     public function addFrom($index)
@@ -129,9 +134,7 @@ class QueryBuilder
 
     public function where($where)
     {
-        $this->resetQueryPart('where');
-
-        return $this->add('where', $where, true);
+        return $this->add('where', $where);
     }
 
     public function andWhere($where)
@@ -141,8 +144,6 @@ class QueryBuilder
 
     public function groupBy($groupBy, $limit = null)
     {
-        $this->resetQueryPart('groupBy');
-
         return $this
             ->add('groupBy', $groupBy)
             ->add('groupByLimit', $limit);
@@ -155,50 +156,54 @@ class QueryBuilder
 
     public function withinGroupOrderBy($order, $direction = null)
     {
-        return $this->add('withinGroupOrderBy', $order.$this->getDirection($order, $direction));
+        return $this->add('withinGroupOrderBy', compact('order', 'direction'));
     }
 
-    public function facet($facet, $by = null, $order = null, $direction = null, $limit = null, $skip = null)
+    /**
+     * @param string|array $facet 'brand_id', or array('brand_id', 'year') or array('brand_id' => 'brand', 'year')
+     * @param string $by
+     * @param string $order
+     * @param string $direction
+     * @param int $limit
+     * @param int $skip
+     *
+     * @return $this
+     */
+    public function facet($facet, $by = null, $order = null, $direction = null, $limit = null, $skip = 0)
     {
-        // ...
+        $facet = (array)$facet;
+
+        return $this->add('facet', compact('facet', 'by', 'order', 'direction', 'limit', 'skip'), true);
     }
 
     public function orderBy($order, $direction = null)
     {
-        return $this->add('orderBy', $order.$this->getDirection($order, $direction));
+        return $this->add('orderBy', compact('order', 'direction'));
     }
 
     public function addOrderBy($order, $direction = null)
     {
-        return $this->add('orderBy', $order.$this->getDirection($order, $direction), true);
+        return $this->add('orderBy', compact('order', 'direction'), true);
     }
 
     public function setOption($name, $value)
     {
-        $this->options[$name] = $value;
-
-        return $this;
+        return $this->add('options', compact('name', 'value'), true);
     }
 
     public function setMaxResults($limit)
     {
-        $this->state = self::STATE_DIRTY;
-        $this->maxResults = $limit;
-
-        return $this;
+        return $this->add('maxResults', $limit);
     }
 
     public function setFirstResult($skip)
     {
-        $this->state = self::STATE_DIRTY;
-        $this->firstResult = $skip;
-
-        return $this;
+        return $this->add('firstResult', $skip);
     }
 
-    public function setParameter($key, $value)
+    public function setParameter($parameter, $value)
     {
-        $this->params[$key] = $value;
+        $this->parameters[$parameter] = $value;
 
         return $this;
     }
@@ -206,7 +211,7 @@ class QueryBuilder
     /**
      * Creates a new named parameter and bind the value $value to it.
      *
-     * @param mixed $value
+     * @param string $value
      * @param string $prefix The name to bind with.
      *
      * @return string the placeholder name used.
@@ -222,22 +227,22 @@ class QueryBuilder
 
     public function getParameters()
     {
-        return $this->params;
+        return $this->parameters;
     }
 
     public function execute()
     {
-        return $this->conn->executeUpdate($this->getSql(), $this->params);
+        return $this->conn->executeUpdate($this->getSql(), $this->parameters);
     }
 
     public function getResult()
     {
-        return $this->conn->executeQuery($this->getSql(), $this->params);
+        return $this->conn->executeQuery($this->getSql(), $this->parameters);
     }
 
     public function getSql()
     {
-        if (self::STATE_CLEAN === $this->state) {
+        if (!$this->isDirty) {
             return $this->sql;
         }
 
@@ -260,16 +265,13 @@ class QueryBuilder
                 break;
         }
 
-        $this->state = self::STATE_CLEAN;
+        $this->isDirty = false;
 
         return $this->sql;
     }
 
     /**
      * Either appends to or replaces a single, generic query part.
-     *
-     * The available parts are: 'select', 'from', 'set', 'where',
-     * 'groupBy', 'having' and 'orderBy'.
      *
      * @param string $sqlPartName
      * @param string|array $sqlPart
@@ -279,134 +281,90 @@ class QueryBuilder
      */
     protected function add($sqlPartName, $sqlPart, $append = false)
     {
-        $isArray = is_array($sqlPart);
-        $isMultiple = is_array($this->sqlParts[$sqlPartName]);
+        $this->isDirty = true;
 
-        if ($isMultiple && !$isArray) {
-            $sqlPart = array($sqlPart);
-        }
-
-        $this->state = self::STATE_DIRTY;
-
-        if (!$append) {
-            $this->sqlParts[$sqlPartName] = $sqlPart;
-
-            return $this;
-        }
-
-        if ($sqlPartName === 'orderBy' || $sqlPartName === 'groupBy' || $sqlPartName === 'select' || $sqlPartName === 'set') {
-            foreach ($sqlPart as $part) {
-                $this->sqlParts[$sqlPartName][] = $part;
+        if (self::$multipleParts[$sqlPartName]) {
+            if ($append) {
+                $this->sqlParts[$sqlPartName][] = $sqlPart;
+            } else {
+                $this->sqlParts[$sqlPartName] = array($sqlPart);
             }
         } else {
-            if ($isArray && is_array($sqlPart[key($sqlPart)])) {
-                $key = key($sqlPart);
-                $this->sqlParts[$sqlPartName][$key][] = $sqlPart[$key];
-            } else {
-                if ($isMultiple) {
-                    $this->sqlParts[$sqlPartName][] = $sqlPart;
-                } else {
-                    $this->sqlParts[$sqlPartName] = $sqlPart;
-                }
-            }
+            $this->sqlParts[$sqlPartName] = $sqlPart;
         }
-
-        return $this;
-    }
-
-    /**
-     * Gets a query part by its name.
-     *
-     * @param string $queryPartName
-     *
-     * @return string|array
-     */
-    protected function getQueryPart($queryPartName)
-    {
-        return $this->sqlParts[$queryPartName];
-    }
-
-    protected function resetQueryPart($queryPartName)
-    {
-        $this->sqlParts[$queryPartName] = is_array($this->sqlParts[$queryPartName]) ? array() : null;
-        $this->state = self::STATE_DIRTY;
 
         return $this;
     }
 
     protected function buildSqlForSelect()
     {
-        $query = 'SELECT '.implode(', ', $this->sqlParts['select']).' FROM ';
+        $select = call_user_func_array('array_merge', $this->sqlParts['select']);
+        $query = 'SELECT '.implode(', ', $select).' FROM ';
 
-        $fromClauses = array();
+        $fromParts = array();
         foreach ($this->sqlParts['from'] as $from) {
             $table = $from['table'];
             if ($table instanceof static) {
-                $fromClauses[] = '('.$table->getSql().')';
-                foreach ($table->getParameters() as $pName => $pValue) {
-                    $this->setParameter($pName, $pValue);
+                $fromParts[] = '('.$table->getSql().')';
+                foreach ($table->getParameters() as $parameter => $value) {
+                    $this->setParameter($parameter, $value);
                 }
             } else {
-                $fromClauses[] = $table;
+                $fromParts[] = $table;
             }
         }
 
-        $query .= implode(', ', $fromClauses)
+        $query .= implode(', ', $fromParts)
             .$this->buildWherePart()
             .$this->buildGroupByPart()
-            .($this->sqlParts['orderBy'] ? ' ORDER BY '.implode(', ', $this->sqlParts['orderBy']) : '');
+            .$this->buildOrderByPart()
+            .$this->buildFacetPart();
 
         //TODO: inject limit, skip as parameters for better caching? Or just move caching to upper layer
-        if ($this->maxResults) {
-            $query .= ' LIMIT '.(int)$this->firstResult.', '.(int)$this->maxResults;
+        if ($this->sqlParts['maxResults']) {
+            $query .= ' LIMIT '.(int)$this->sqlParts['firstResult'].', '.(int)$this->sqlParts['maxResults'];
         }
 
-        if ($this->options) {
-            $optionsClauses = array();
-            foreach ($this->options as $optionName => $optionValue) {
-                $optionsClauses[] = $optionName.' = '.$optionValue;
-            }
-            $query .= ' OPTION '.implode(', ', $optionsClauses);
-        }
+        $query .= $this->buildOptionsPart();
 
         return $query;
     }
 
     protected function buildSqlForInsert()
     {
-        $fromClauses = array();
-        foreach ($this->sqlParts['from'] as $from) {
-            $fromClauses[] = $from['table'];
-        }
-
         $columns = array();
-        $valuesSets = array();
+        $valuesParts = array();
         foreach ($this->sqlParts['values'] as $value) {
             //TODO: check columns
             $columns = array_keys($value);
-            $valuesSets[] = '('.implode(', ', $value).')';
+            $valuesParts[] = '('.implode(', ', $value).')';
         }
 
-        //TODO: only one index allowed in insert?
+        $index = current($this->sqlParts['from'])['table'];
         $query = ($this->type === self::TYPE_REPLACE ? 'REPLACE' : 'INSERT')
-            .' INTO '.implode(', ', $fromClauses)
-            .' ('.implode(', ', $columns).') VALUES '.implode(', ', $valuesSets);
+            .' INTO '.$index
+            .' ('.implode(', ', $columns).') VALUES '.implode(', ', $valuesParts);
 
         return $query;
     }
 
     protected function buildSqlForUpdate()
     {
-        $table = $this->sqlParts['from']['table'];
-        $query = 'UPDATE '.$table.' SET '.implode(', ', $this->sqlParts['set']).$this->buildWherePart();
+        $index = current($this->sqlParts['from'])['table'];
+        $setParts = array();
+        foreach ($this->sqlParts['set'] as $setPart) {
+            $setParts[] = $setPart['key'].' = '.$setPart['value'];
+        }
+
+        $query = 'UPDATE '.$index.' SET '.implode(', ', $setParts).$this->buildWherePart();
 
         return $query;
     }
 
     protected function buildSqlForDelete()
     {
-        $table = $this->sqlParts['from']['table'];
-        $query = 'DELETE FROM '.$table.$this->buildWherePart();
+        $index = current($this->sqlParts['from'])['table'];
+        $query = 'DELETE FROM '.$index.$this->buildWherePart();
 
         return $query;
     }
@@ -417,12 +375,7 @@ class QueryBuilder
             return '';
         }
 
-        $whereParts = array();
-        foreach ($this->sqlParts['where'] as $where) {
-            $whereParts[] = $where[0];
-        }
-
-        return ' WHERE '.implode(' AND ', $whereParts);
+        return ' WHERE '.implode(' AND ', $this->sqlParts['where']);
     }
 
     protected function buildGroupByPart()
@@ -433,11 +386,78 @@ class QueryBuilder
 
         $sql = ' GROUP'.($this->sqlParts['groupByLimit'] ? ' '.$this->sqlParts['groupByLimit'] : '')
             .' BY '.implode(', ', $this->sqlParts['groupBy']);
-        if ($this->sqlParts['withinGroupOrderBy']) {
-            $sql .= ' WITHIN GROUP ORDER BY '.$this->sqlParts['withinGroupOrderBy'];
+        $orderBy = $this->sqlParts['withinGroupOrderBy'];
+        if ($orderBy) {
+            $sql .= ' WITHIN GROUP ORDER BY '.$orderBy['order'].$this->getDirection($orderBy['order'], $orderBy['direction']);
         }
 
         return $sql;
+    }
+
+    protected function buildOrderByPart()
+    {
+        if (!$this->sqlParts['orderBy']) {
+            return '';
+        }
+
+        $orderByParts = array();
+        foreach ($this->sqlParts['orderBy'] as $orderBy) {
+            $orderByParts[] = $orderBy['order'].$this->getDirection($orderBy['order'], $orderBy['direction']);
+        }
+
+        return ' ORDER BY '.implode(', ', $orderByParts);
+    }
+
+    protected function buildOptionsPart()
+    {
+        if (!$this->sqlParts['options']) {
+            return '';
+        }
+
+        $optionsParts = array();
+        foreach ($this->sqlParts['options'] as $option) {
+            $optionsParts[] = $option['name'].' = '.$option['value'];
+        }
+
+        return ' OPTION '.implode(', ', $optionsParts);
+    }
+
+    /**
+     * Build FACET {expr_list} [BY {expr_list}] [ORDER BY {expr | FACET()} {ASC | DESC}] [LIMIT [offset,] count]
+     *
+     * @return string
+     */
+    protected function buildFacetPart()
+    {
+        if (!$this->sqlParts['facet']) {
+            return '';
+        }
+
+        $facetParts = array();
+        foreach ($this->sqlParts['facet'] as $facet) {
+            $facetExpressions = array();
+            foreach ($facet['facet'] as $key => $facetExpr) {
+                if (is_int($key)) {
+                    $facetExpressions[] = $facetExpr;
+                } else {
+                    $facetExpressions[] = $key.' AS '.$facetExpr;
+                }
+            }
+            $facetPart = 'FACET '.implode(', ', $facetExpressions);
+            if ($facet['by']) {
+                $facetPart .= ' BY '.$facet['by'];
+            }
+            if ($facet['order']) {
+                $facetPart .= ' ORDER BY '.$facet['order'].$this->getDirection($facet['order'], $facet['direction']);
+            }
+            if ($facet['limit']) {
+                $facetPart .= ' LIMIT '.(int)$facet['skip'].', '.(int)$facet['limit'];
+            }
+
+            $facetParts[] = $facetPart;
+        }
+
+        return ' '.implode(', ', $facetParts);
     }
 
     protected function getDirection($order, $direction)
