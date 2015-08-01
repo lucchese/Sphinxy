@@ -2,9 +2,7 @@
 
 namespace Brouzie\Sphinxy;
 
-use Doctrine\Common\Persistence\ConnectionRegistry;
-
-class Registry// implements ConnectionRegistry
+class Registry
 {
     /**
      * @var Connection[]
