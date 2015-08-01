@@ -64,7 +64,7 @@ class Escaper
      * Adds quotes around values when necessary.
      * Based on FuelPHP's quoting function.
      *
-     * @param Expr|string $value The input string, eventually wrapped in an expression to leave it untouched
+     * @param Expr|mixed $value The input string, eventually wrapped in an expression to leave it untouched
      *
      * @return string The untouched Expression or the quoted string
      */
@@ -141,10 +141,25 @@ class Escaper
      */
     public function escapeMatch($string)
     {
-        $from = array('\\', '(', ')', '|', '-', '!', '@', '~', '"', '&', '/', '^', '$', '=');
-        $to = array('\\\\', '\(', '\)', '\|', '\-', '\!', '\@', '\~', '\"', '\&', '\/', '\^', '\$', '\=');
+        //TODO: maybe better use addcslashes instead of strtr
+        static $fromTo = array(
+            '\\' => '\\\\',
+            '(' => '\(',
+            ')' => '\)',
+            '|' => '\|',
+            '-' => '\-',
+            '!' => '\!',
+            '@' => '\@',
+            '~' => '\~',
+            '"' => '\"',
+            '&' => '\&',
+            '/' => '\/',
+            '^' => '\^',
+            '$' => '\$',
+            '=' => '\='
+        );
 
-        return str_replace($from, $to, $string);
+        return strtr($string, $fromTo);
     }
 
     /**
@@ -158,7 +173,7 @@ class Escaper
      */
     public function halfEscapeMatch($string)
     {
-        $fromTo = array(
+        static $fromTo = array(
             '\\' => '\\\\',
             '(' => '\(',
             ')' => '\)',
@@ -172,7 +187,7 @@ class Escaper
             '=' => '\=',
         );
 
-        $string = str_replace(array_keys($fromTo), array_values($fromTo), $string);
+        $string = strtr($string, $fromTo);
 
         // this manages to lower the error rate by a lot
         if (mb_substr_count($string, '"') % 2 !== 0) {
