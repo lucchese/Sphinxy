@@ -2,15 +2,13 @@
 
 namespace Brouzie\Sphinxy\Query;
 
-class ResultSet implements \IteratorAggregate, \Countable
+class ResultSet extends SimpleResultSet
 {
-    protected $result;
-
     protected $meta;
 
-    public function __construct(array $result, $rawMeta)
+    public function __construct(array $result, array $rawMeta)
     {
-        $this->result = $result;
+        parent::__construct($result);
 
         $meta = array();
         foreach ($rawMeta as $row) {
@@ -18,16 +16,6 @@ class ResultSet implements \IteratorAggregate, \Countable
         }
 
         $this->meta = $meta;
-    }
-
-    public function getIterator()
-    {
-        return new \ArrayIterator($this->result);
-    }
-
-    public function count()
-    {
-        return count($this->result);
     }
 
     public function getAllowedCount()

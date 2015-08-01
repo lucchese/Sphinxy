@@ -240,6 +240,11 @@ class QueryBuilder
         return $this->conn->executeQuery($this->getSql(), $this->parameters);
     }
 
+    public function getMultiResult()
+    {
+        return $this->conn->executeMultiQuery($this->getSql(), $this->parameters);
+    }
+
     public function getSql()
     {
         if (!$this->isDirty) {
@@ -457,7 +462,7 @@ class QueryBuilder
             $facetParts[] = $facetPart;
         }
 
-        return ' '.implode(', ', $facetParts);
+        return ' '.implode(' ', $facetParts);
     }
 
     protected function getDirection($order, $direction)

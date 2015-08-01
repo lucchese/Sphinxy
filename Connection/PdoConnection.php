@@ -33,6 +33,24 @@ class PdoConnection implements ConnectionInterface
         return $result;
     }
 
+    public function multiQuery($query)
+    {
+        $this->initialize();
+
+        try {
+            $stmt = $this->pdo->query($query);
+        } catch (\PDOException $e) {
+            throw new ConnectionException($e->getMessage(), $e->getCode(), $e);
+        }
+
+        $results = array();
+        do {
+            $results[] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+        } while ($stmt->nextRowset());
+
+        return $results;
+    }
+
     public function exec($query)
     {
         $this->initialize();
