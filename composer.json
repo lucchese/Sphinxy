@@ -1,6 +1,6 @@
 {
     "name": "brouzie/sphinxy",
-    "description": "Sphinx library",
+    "description": "Sphinx client library which uses SphinxQL and provides query builder functionality",
     "keywords": ["sphinx", "sphinxsearch", "sphinxy"],
     "license": "MIT",
     "authors": [
