@@ -62,6 +62,11 @@ class QueryBuilder
         $this->conn = $conn;
     }
 
+    public function getEscaper()
+    {
+        return $this->conn->getEscaper();
+    }
+
     public function select($select = null)
     {
         $this->type = self::TYPE_SELECT;
