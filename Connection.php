@@ -4,6 +4,7 @@ namespace Brouzie\Sphinxy;
 
 use Brouzie\Sphinxy\Connection\ConnectionInterface;
 use Brouzie\Sphinxy\Logging\LoggerInterface;
+use Brouzie\Sphinxy\Query\MultiResultSet;
 use Brouzie\Sphinxy\Query\ResultSet;
 
 class Connection
@@ -70,10 +71,25 @@ class Connection
         if (null !== $this->logger) {
             $this->logger->stopQuery();
         }
-        //TODO: use multiquery?
         $meta = $this->conn->query('SHOW META');
 
         return new ResultSet($result, $meta);
+    }
+
+    public function executeMultiQuery($query, array $params = array())
+    {
+        if (null !== $this->logger) {
+            $this->logger->startQuery($query, $params);
+        }
+
+        $results = $this->conn->multiQuery($this->prepareQuery($query, $params));
+
+        if (null !== $this->logger) {
+            $this->logger->stopQuery();
+        }
+        $meta = $this->conn->query('SHOW META');
+
+        return new MultiResultSet($results, $meta);
     }
 
     public function quote($value)
