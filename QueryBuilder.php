@@ -327,15 +327,15 @@ class QueryBuilder
         $query .= implode(', ', $fromParts)
             .$this->buildWherePart()
             .$this->buildGroupByPart()
-            .$this->buildOrderByPart()
-            .$this->buildFacetPart();
+            .$this->buildOrderByPart();
 
         //TODO: inject limit, skip as parameters for better caching? Or just move caching to upper layer
         if ($this->sqlParts['maxResults']) {
             $query .= ' LIMIT '.(int)$this->sqlParts['firstResult'].', '.(int)$this->sqlParts['maxResults'];
         }
 
-        $query .= $this->buildOptionsPart();
+        $query .= $this->buildOptionsPart()
+            .$this->buildFacetPart();
 
         return $query;
     }
