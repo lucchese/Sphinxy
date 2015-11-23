@@ -26,6 +26,7 @@ class QueryBuilder
         'withinGroupOrderBy' => null,
         'orderBy' => array(),
         'facet' => array(),
+        'resultSetNames' => array(0),
         'set' => array(),
         'values' => array(),
         'options' => array(),
@@ -42,6 +43,7 @@ class QueryBuilder
         'withinGroupOrderBy' => false,
         'orderBy' => true,
         'facet' => true,
+        'resultSetNames' => true,
         'set' => true,
         'values' => true,
         'options' => true,
@@ -181,6 +183,11 @@ class QueryBuilder
         return $this->add('facet', compact('facet', 'by', 'order', 'direction', 'limit', 'skip'), true);
     }
 
+    public function nameResultSet($name)
+    {
+        return $this->add('resultSetNames', $name, true);
+    }
+
     public function orderBy($order, $direction = null)
     {
         return $this->add('orderBy', compact('order', 'direction'));
@@ -247,7 +254,7 @@ class QueryBuilder
 
     public function getMultiResult()
     {
-        return $this->conn->executeMultiQuery($this->getSql(), $this->parameters);
+        return $this->conn->executeMultiQuery($this->getSql(), $this->parameters, array(), $this->sqlParts['resultSetNames']);
     }
 
     public function getSql()

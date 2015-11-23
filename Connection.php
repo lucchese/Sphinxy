@@ -76,13 +76,13 @@ class Connection
         return new ResultSet($result, $meta);
     }
 
-    public function executeMultiQuery($query, array $params = array())
+    public function executeMultiQuery($query, array $params = array(), array $types = array(), array $resultSetNames = array())
     {
         if (null !== $this->logger) {
             $this->logger->startQuery($query, $params);
         }
 
-        $results = $this->conn->multiQuery($this->prepareQuery($query, $params));
+        $results = $this->conn->multiQuery($this->prepareQuery($query, $params), $resultSetNames);
 
         if (null !== $this->logger) {
             $this->logger->stopQuery();

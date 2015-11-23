@@ -33,7 +33,7 @@ class PdoConnection implements ConnectionInterface
         return $result;
     }
 
-    public function multiQuery($query)
+    public function multiQuery($query, array $resultSetNames = array())
     {
         $this->initialize();
 
@@ -44,8 +44,11 @@ class PdoConnection implements ConnectionInterface
         }
 
         $results = array();
+        $i = 0;
         do {
-            $results[] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $key = isset($resultSetNames[$i]) ? $resultSetNames[$i] : $i;
+            $results[$key] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+            $i++;
         } while ($stmt->nextRowset());
 
         return $results;
