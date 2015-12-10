@@ -213,6 +213,12 @@ class QueryBuilder
         return $this->add('firstResult', $skip);
     }
 
+    public function merge(self $qb)
+    {
+        //TODO: делать или не делать?
+        // ...
+    }
+
     public function setParameter($parameter, $value)
     {
         $this->parameters[$parameter] = $value;

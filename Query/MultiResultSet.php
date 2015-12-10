@@ -13,4 +13,16 @@ class MultiResultSet extends ResultSet
             return new SimpleResultSet($result);
         }, $result), $rawMeta);
     }
+
+    public function merge(self $multiResultSet)
+    {
+        foreach ($multiResultSet as $name => $resultSet) {
+            if (is_string($name)) {
+                $this->result[$name] = $resultSet;
+                //TODO: save meta
+            } else {
+                $this->result[] = $resultSet;
+            }
+        }
+    }
 }

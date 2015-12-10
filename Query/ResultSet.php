@@ -18,6 +18,11 @@ class ResultSet extends SimpleResultSet
         $this->meta = $meta;
     }
 
+    public function getMeta()
+    {
+        return $this->meta;
+    }
+
     public function getAllowedCount()
     {
         return (int)$this->meta['total'];
