@@ -65,7 +65,7 @@ class SphinxyQbAdapter implements LazyAdapterInterface
         $result = $this->previousResultSet->getIterator();
 
         if (is_callable($this->resultsFilterCallback)) {
-            $result = call_user_func($this->resultsFilterCallback, $result);
+            $result = call_user_func($this->resultsFilterCallback, $result, $offset, $length);
         }
 
         return $result;
