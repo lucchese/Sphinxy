@@ -25,4 +25,18 @@ class MultiResultSet extends ResultSet
             }
         }
     }
+
+    public function hasResultSet($name)
+    {
+        return isset($this->result[$name]);
+    }
+
+    public function getResultSet($name)
+    {
+        if (!$this->hasResultSet($name)) {
+            throw new \InvalidArgumentException(sprintf('Result set with name "%s" not exists.', $name));
+        }
+
+        return $this->result[$name];
+    }
 }
