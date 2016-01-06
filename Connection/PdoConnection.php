@@ -48,7 +48,7 @@ class PdoConnection implements ConnectionInterface
         do {
             $key = isset($resultSetNames[$i]) ? $resultSetNames[$i] : $i;
             $results[$key] = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-            $i++;
+            ++$i;
         } while ($stmt->nextRowset());
 
         return $results;
@@ -69,7 +69,7 @@ class PdoConnection implements ConnectionInterface
     {
         $this->initialize();
 
-        if (false === $value = $this->pdo->quote((string)$value)) {
+        if (false === $value = $this->pdo->quote((string) $value)) {
             throw new ConnectionException($this->pdo->errorInfo(), $this->pdo->errorCode());
         }
 

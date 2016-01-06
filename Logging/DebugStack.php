@@ -23,7 +23,7 @@ class DebugStack implements LoggerInterface
     protected $start;
 
     /**
-     * @var integer
+     * @var int
      */
     protected $currentQuery = 0;
 

@@ -12,7 +12,7 @@ if (!interface_exists('Pagerfanta\Adapter\LazyAdapterInterface')) {
 }
 
 /**
- * Sphinxy Pagerfanta Adapter
+ * Sphinxy Pagerfanta Adapter.
  *
  * @author Konstantin Myakshin <koc-dp@yandex.ru>
  */

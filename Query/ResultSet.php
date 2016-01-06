@@ -25,11 +25,11 @@ class ResultSet extends SimpleResultSet
 
     public function getAllowedCount()
     {
-        return (int)$this->meta['total'];
+        return (int) $this->meta['total'];
     }
 
     public function getTotalCount()
     {
-        return (int)$this->meta['total_found'];
+        return (int) $this->meta['total_found'];
     }
 }

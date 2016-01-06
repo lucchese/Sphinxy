@@ -67,6 +67,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
     }
 
     //TODO: offset without limit?
+
     public function testSimpleSelectWithLimitAndOffset()
     {
         $qb = $this->getQueryBuilder();
@@ -279,7 +280,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
         $qb->update('products')
             ->set('title', "'product 2'")
-            ->set('attributes', "(1, 2, 3)")
+            ->set('attributes', '(1, 2, 3)')
             ->where('id = 1')
         ;
 
@@ -294,7 +295,7 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
             ->where('id = 1')
         ;
 
-        $this->assertEquals("DELETE FROM products WHERE id = 1", $qb->getSql());
+        $this->assertEquals('DELETE FROM products WHERE id = 1', $qb->getSql());
     }
 
     public function testCreateParameter()
