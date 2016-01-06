@@ -2,8 +2,8 @@
 
 namespace Brouzie\Sphinxy\Indexer;
 
-use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\AbstractQuery;
+use Doctrine\ORM\EntityManager;
 
 abstract class DoctrineQbIndexer implements IndexerInterface
 {

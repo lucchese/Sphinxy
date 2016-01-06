@@ -43,7 +43,6 @@ class IndexManager
             $items = $indexer->getItemsByInterval($idFrom, $idTo);
             $this->processItems($index, $indexer, $items);
             $idFrom = $idTo;
-
         } while ($idFrom <= $range['max']);
         $this->conn->setLogger($logger);
     }

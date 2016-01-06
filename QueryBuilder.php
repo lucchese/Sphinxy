@@ -76,14 +76,14 @@ class QueryBuilder
             return $this;
         }
 
-        return $this->add('select', (array)$select);
+        return $this->add('select', (array) $select);
     }
 
     public function addSelect($select)
     {
         $this->type = self::TYPE_SELECT;
 
-        return $this->add('select', (array)$select, true);
+        return $this->add('select', (array) $select, true);
     }
 
     public function update($index)
@@ -183,7 +183,7 @@ class QueryBuilder
      */
     public function facet($facet, $by = null, $order = null, $direction = null, $limit = null, $skip = 0)
     {
-        $facet = (array)$facet;
+        $facet = (array) $facet;
 
         return $this->add('facet', compact('facet', 'by', 'order', 'direction', 'limit', 'skip'), true);
     }
@@ -349,7 +349,7 @@ class QueryBuilder
 
         //TODO: inject limit, skip as parameters for better caching? Or just move caching to upper layer
         if ($this->sqlParts['maxResults']) {
-            $query .= ' LIMIT '.(int)$this->sqlParts['firstResult'].', '.(int)$this->sqlParts['maxResults'];
+            $query .= ' LIMIT '.(int) $this->sqlParts['firstResult'].', '.(int) $this->sqlParts['maxResults'];
         }
 
         $query .= $this->buildOptionsPart()
@@ -456,7 +456,7 @@ class QueryBuilder
     }
 
     /**
-     * Build FACET {expr_list} [BY {expr_list}] [ORDER BY {expr | FACET()} {ASC | DESC}] [LIMIT [offset,] count]
+     * Build FACET {expr_list} [BY {expr_list}] [ORDER BY {expr | FACET()} {ASC | DESC}] [LIMIT [offset,] count].
      *
      * @return string
      */
@@ -484,7 +484,7 @@ class QueryBuilder
                 $facetPart .= ' ORDER BY '.$facet['order'].$this->getDirection($facet['order'], $facet['direction']);
             }
             if ($facet['limit']) {
-                $facetPart .= ' LIMIT '.(int)$facet['skip'].', '.(int)$facet['limit'];
+                $facetPart .= ' LIMIT '.(int) $facet['skip'].', '.(int) $facet['limit'];
             }
 
             $facetParts[] = $facetPart;

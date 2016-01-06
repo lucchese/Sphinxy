@@ -8,7 +8,7 @@ use Brouzie\Sphinxy\Exception\ParameterNotFoundException;
 class Util
 {
     /**
-     * This code ported from https://github.com/auraphp/Aura.Sql/blob/master/src/Aura/Sql/Connection/AbstractConnection.php
+     * This code ported from https://github.com/auraphp/Aura.Sql/blob/master/src/Aura/Sql/Connection/AbstractConnection.php.
      *
      * @param $query
      * @param $params
@@ -33,12 +33,12 @@ class Util
         // loop through the non-quoted parts (0, 3, 6, 9, etc.)
         for ($i = 0, $k = count($parts); $i <= $k; $i += 3) {
             // get the part as a reference so it can be modified in place
-            $part =& $parts[$i];
+            $part = &$parts[$i];
 
             // find all :placeholder matches in the part
             preg_match_all(
                 "/\W:([a-zA-Z_][a-zA-Z0-9_]*)/m",
-                $part . PHP_EOL,
+                $part.PHP_EOL,
                 $matches
             );
 

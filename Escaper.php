@@ -84,7 +84,7 @@ class Escaper
                 return $value->getValue();
 
             case is_int($value) || ctype_digit($value):
-                return (int)$value;
+                return (int) $value;
 
             case is_float($value):
                 // Convert to non-locale aware float to prevent possible commas
@@ -131,9 +131,8 @@ class Escaper
         return $result;
     }
 
-
     /**
-     * Escapes the query for the MATCH() function
+     * Escapes the query for the MATCH() function.
      *
      * @param  string $string The string to escape for the MATCH
      *
@@ -156,7 +155,7 @@ class Escaper
             '/' => '\/',
             '^' => '\^',
             '$' => '\$',
-            '=' => '\='
+            '=' => '\=',
         );
 
         return strtr($string, $fromTo);
@@ -165,7 +164,7 @@ class Escaper
     /**
      * Escapes the query for the MATCH() function
      * Allows some of the control characters to pass through for use with a search field: -, |, "
-     * It also does some tricks to wrap/unwrap within " the string and prevents errors
+     * It also does some tricks to wrap/unwrap within " the string and prevents errors.
      *
      * @param  string $string The string to escape for the MATCH
      *
@@ -196,7 +195,7 @@ class Escaper
 
         $fromToPreg = array(
             "'\"([^\s]+)-([^\s]*)\"'" => "\\1\-\\2",
-            "'([^\s]+)-([^\s]*)'" => "\"\\1\-\\2\""
+            "'([^\s]+)-([^\s]*)'" => "\"\\1\-\\2\"",
         );
 
         $string = preg_replace(array_keys($fromToPreg), array_values($fromToPreg), $string);
