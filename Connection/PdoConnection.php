@@ -25,7 +25,7 @@ class PdoConnection implements ConnectionInterface
         try {
             $stmt = $this->pdo->query($query);
         } catch (\PDOException $e) {
-            throw new ConnectionException($e->getMessage(), $e->getCode(), $e);
+            throw new ConnectionException($e->getMessage(), 0, $e);
         }
 
         $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
@@ -40,7 +40,7 @@ class PdoConnection implements ConnectionInterface
         try {
             $stmt = $this->pdo->query($query);
         } catch (\PDOException $e) {
-            throw new ConnectionException($e->getMessage(), $e->getCode(), $e);
+            throw new ConnectionException($e->getMessage(), 0, $e);
         }
 
         $results = array();
@@ -61,7 +61,7 @@ class PdoConnection implements ConnectionInterface
         try {
             return $this->pdo->exec($query);
         } catch (\PDOException $e) {
-            throw new ConnectionException($e->getMessage(), $e->getCode(), $e);
+            throw new ConnectionException($e->getMessage(), 0, $e);
         }
     }
 
@@ -82,7 +82,7 @@ class PdoConnection implements ConnectionInterface
             try {
                 $this->pdo = new \PDO($this->dsn, null, null, array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION));
             } catch (\PDOException $e) {
-                throw new ConnectionException($e->getMessage(), $e->getCode(), $e);
+                throw new ConnectionException($e->getMessage(), 0, $e);
             }
         }
     }
