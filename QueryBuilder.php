@@ -23,7 +23,7 @@ class QueryBuilder
         'where' => array(),
         'groupBy' => array(),
         'groupByLimit' => null,
-        'withinGroupOrderBy' => null,
+        'withinGroupOrderBy' => array(),
         'orderBy' => array(),
         'facet' => array(),
         'resultSetNames' => array(0),
@@ -40,7 +40,7 @@ class QueryBuilder
         'where' => true,
         'groupBy' => true,
         'groupByLimit' => false,
-        'withinGroupOrderBy' => false,
+        'withinGroupOrderBy' => true,
         'orderBy' => true,
         'facet' => true,
         'resultSetNames' => true,
@@ -164,6 +164,11 @@ class QueryBuilder
     public function withinGroupOrderBy($order, $direction = null)
     {
         return $this->add('withinGroupOrderBy', compact('order', 'direction'));
+    }
+
+    public function addWithinGroupOrderBy($order, $direction = null)
+    {
+        return $this->add('withinGroupOrderBy', compact('order', 'direction'), true);
     }
 
     /**
@@ -409,12 +414,17 @@ class QueryBuilder
 
         $sql = ' GROUP'.($this->sqlParts['groupByLimit'] ? ' '.$this->sqlParts['groupByLimit'] : '')
             .' BY '.implode(', ', $this->sqlParts['groupBy']);
-        $orderBy = $this->sqlParts['withinGroupOrderBy'];
-        if ($orderBy) {
-            $sql .= ' WITHIN GROUP ORDER BY '.$orderBy['order'].$this->getDirection($orderBy['order'], $orderBy['direction']);
+
+        if (!$this->sqlParts['withinGroupOrderBy']) {
+            return $sql;
         }
 
-        return $sql;
+        $orderByParts = array();
+        foreach ($this->sqlParts['withinGroupOrderBy'] as $orderBy) {
+            $orderByParts[] = $orderBy['order'].$this->getDirection($orderBy['order'], $orderBy['direction']);
+        }
+
+        return $sql.' WITHIN GROUP ORDER BY '.implode(', ', $orderByParts);
     }
 
     protected function buildOrderByPart()

@@ -188,6 +188,19 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
         $this->assertEquals('SELECT * FROM products GROUP BY company_id WITHIN GROUP ORDER BY is_special_offer DESC', $qb->getSql());
     }
 
+    public function testMultipleGroupByWithOrderBy()
+    {
+        $qb = $this->getQueryBuilder();
+
+        $qb->select('*')
+            ->from('products')
+            ->groupBy('company_id')
+            ->withinGroupOrderBy('is_special_offer', 'DESC')
+            ->addWithinGroupOrderBy('price', 'ASC');
+
+        $this->assertEquals('SELECT * FROM products GROUP BY company_id WITHIN GROUP ORDER BY is_special_offer DESC, price ASC', $qb->getSql());
+    }
+
     public function testFacet()
     {
         $qb = $this->getQueryBuilder();
