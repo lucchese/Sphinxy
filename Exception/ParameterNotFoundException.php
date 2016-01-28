@@ -2,6 +2,6 @@
 
 namespace Brouzie\Sphinxy\Exception;
 
-class ParameterNotFoundException extends \InvalidArgumentException
+class ParameterNotFoundException extends \InvalidArgumentException implements Exception
 {
 }

@@ -2,6 +2,6 @@
 
 namespace Brouzie\Sphinxy\Exception;
 
-class NonUniqueResultException extends \RuntimeException
+class NonUniqueResultException extends \RuntimeException implements Exception
 {
 }

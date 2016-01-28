@@ -2,6 +2,6 @@
 
 namespace Brouzie\Sphinxy\Exception;
 
-class ConnectionException extends \RuntimeException
+class ConnectionException extends \RuntimeException implements Exception
 {
 }

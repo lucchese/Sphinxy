@@ -2,6 +2,6 @@
 
 namespace Brouzie\Sphinxy\Exception;
 
-class ExtraParametersException extends \InvalidArgumentException
+class ExtraParametersException extends \InvalidArgumentException implements Exception
 {
 }
