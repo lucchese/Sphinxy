@@ -2,6 +2,8 @@
 
 namespace Brouzie\Sphinxy\Query;
 
+use Brouzie\Sphinxy\Exception\NonUniqueResultException;
+
 class ResultSet extends SimpleResultSet
 {
     protected $meta;
@@ -16,6 +18,15 @@ class ResultSet extends SimpleResultSet
         }
 
         $this->meta = $meta;
+    }
+
+    public function getSingleRow()
+    {
+        if (count($this->result) > 1) {
+            throw new NonUniqueResultException();
+        }
+
+        return $this->result[0];
     }
 
     public function getMeta()

@@ -70,12 +70,11 @@ class IndexManager
     public function getIndexRange($index)
     {
         return $this->conn
-                ->createQueryBuilder()
-                ->select('MIN(id) AS `min`, MAX(id) AS `max`')
-                ->from($this->conn->getEscaper()->quoteIdentifier($index))
-                ->getResult()
-                ->getIterator()
-                ->current();
+            ->createQueryBuilder()
+            ->select('MIN(id) AS `min`, MAX(id) AS `max`')
+            ->from($this->conn->getEscaper()->quoteIdentifier($index))
+            ->getResult()
+            ->getSingleRow();
     }
 
     public function truncate($index)
