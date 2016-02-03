@@ -20,13 +20,18 @@ class ResultSet extends SimpleResultSet
         $this->meta = $meta;
     }
 
-    public function getSingleRow()
+    /**
+     * @param array $default Workaround for http://sphinxsearch.com/bugs/view.php?id=2410
+     *
+     * @return array
+     */
+    public function getSingleRow($default = array())
     {
         if (count($this->result) > 1) {
             throw new NonUniqueResultException();
         }
 
-        return $this->result[0];
+        return isset($this->result[0]) ? $this->result[0] : $default;
     }
 
     public function getMeta()

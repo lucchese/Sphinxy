@@ -74,7 +74,7 @@ class IndexManager
             ->select('MIN(id) AS `min`, MAX(id) AS `max`')
             ->from($this->conn->getEscaper()->quoteIdentifier($index))
             ->getResult()
-            ->getSingleRow();
+            ->getSingleRow(array('min' => 0, 'max' => 0));
     }
 
     public function truncate($index)
