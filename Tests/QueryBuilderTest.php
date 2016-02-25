@@ -208,11 +208,12 @@ class QueryBuilderTest extends \PHPUnit_Framework_TestCase
 
         $qb->select('*')
             ->from('products')
+            ->facet(array('INTERVAL(price, 0, 200, 400)' => 'price_iterval'))
             ->facet(array('brand_name', 'brand_id' => 'brand'), 'brand_id', 'brand_name')
             ->facet('attributes', null, 'COUNT(*)', 'DESC');
         //TODO: add test for limit/skip
 
-        $this->assertEquals('SELECT * FROM products FACET brand_name, brand_id AS brand BY brand_id ORDER BY brand_name ASC FACET attributes ORDER BY COUNT(*) DESC', $qb->getSql());
+        $this->assertEquals('SELECT * FROM products FACET INTERVAL(price, 0, 200, 400) AS price_iterval FACET brand_name, brand_id AS brand BY brand_id ORDER BY brand_name ASC FACET attributes ORDER BY COUNT(*) DESC', $qb->getSql());
     }
 
     public function testWhereWithMultipleGroupBy()

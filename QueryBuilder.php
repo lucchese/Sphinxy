@@ -172,7 +172,7 @@ class QueryBuilder
     }
 
     /**
-     * @param string|array $facet 'brand_id', or array('brand_id', 'year') or array('brand_id' => 'brand', 'year')
+     * @param string|array $facet 'column1', or array('column1', 'column1') or array('column1' => 'column_alias', 'column2')
      * @param string $by
      * @param string $order
      * @param string $direction

@@ -28,9 +28,7 @@ class PdoConnection implements ConnectionInterface
             throw new ConnectionException($e->getMessage(), 0, $e);
         }
 
-        $result = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
-        return $result;
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
     }
 
     public function multiQuery($query, array $resultSetNames = array())
