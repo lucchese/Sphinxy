@@ -10,14 +10,15 @@ class Util
     /**
      * This code ported from https://github.com/auraphp/Aura.Sql/blob/master/src/Aura/Sql/Connection/AbstractConnection.php.
      *
-     * @param $query
-     * @param $params
+     * @param array $query
+     * @param array $params
+     * @param array $types
      *
      * @license http://opensource.org/licenses/bsd-license.php BSD
      *
      * @return string
      */
-    public static function prepareQuery($query, $params, Escaper $escaper)
+    public static function prepareQuery($query, $params, array $types, Escaper $escaper)
     {
         // find all text parts not inside quotes or backslashed-quotes
         $apos = "'";
@@ -49,7 +50,7 @@ class Util
                 }
 
                 $find = "/(^|\W)(:$key)(\W|$)/m";
-                $repl = '${1}'.addcslashes($escaper->quote($params[$key]), '\\').'${3}';
+                $repl = '${1}'.addcslashes($escaper->quote($params[$key], isset($types[$key]) ? $types[$key] : null), '\\').'${3}';
                 $part = preg_replace($find, $repl, $part);
                 $usedParams[$key] = true;
             }

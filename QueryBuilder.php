@@ -17,7 +17,9 @@ class QueryBuilder
 
     private $type;
 
-    private $sqlParts = array(
+    private $sqlParts;
+
+    private static $canonicalSqlParts = array(
         'select' => array(),
         'from' => array(),
         'where' => array(),
@@ -57,11 +59,14 @@ class QueryBuilder
 
     private $parameters = array();
 
+    private $parameterTypes = array();
+
     private $parametersCounter = 0;
 
     public function __construct(Connection $conn)
     {
         $this->conn = $conn;
+        $this->sqlParts = self::$canonicalSqlParts;
     }
 
     public function getEscaper()
@@ -224,9 +229,10 @@ class QueryBuilder
         // ...
     }
 
-    public function setParameter($parameter, $value)
+    public function setParameter($parameter, $value, $type = null)
     {
         $this->parameters[$parameter] = $value;
+        $this->parameterTypes[$parameter] = $type;
 
         return $this;
     }
@@ -253,14 +259,19 @@ class QueryBuilder
         return $this->parameters;
     }
 
+    public function getParameterTypes()
+    {
+        return $this->parameterTypes;
+    }
+
     public function execute()
     {
-        return $this->conn->executeUpdate($this->getSql(), $this->parameters);
+        return $this->conn->executeUpdate($this->getSql(), $this->parameters, $this->parameterTypes);
     }
 
     public function getResult()
     {
-        return $this->conn->executeQuery($this->getSql(), $this->parameters);
+        return $this->conn->executeQuery($this->getSql(), $this->parameters, $this->parameterTypes);
     }
 
     public function getMultiResult()
@@ -296,6 +307,14 @@ class QueryBuilder
         $this->isDirty = false;
 
         return $this->sql;
+    }
+
+    public function reset($sqlPartName)
+    {
+        $this->isDirty = true;
+        $this->sqlParts[$sqlPartName] = self::$canonicalSqlParts[$sqlPartName];
+
+        return $this;
     }
 
     /**

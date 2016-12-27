@@ -45,13 +45,13 @@ class Connection
         return $this->logger;
     }
 
-    public function executeUpdate($query, array $params = array())
+    public function executeUpdate($query, array $params = array(), array $types = array())
     {
         if (null !== $this->logger) {
             $this->logger->startQuery($query);
         }
 
-        $result = $this->conn->exec($this->prepareQuery($query, $params));
+        $result = $this->conn->exec($this->prepareQuery($query, $params, $types));
 
         if (null !== $this->logger) {
             $this->logger->stopQuery();
@@ -60,13 +60,13 @@ class Connection
         return $result;
     }
 
-    public function executeQuery($query, array $params = array())
+    public function executeQuery($query, array $params = array(), array $types = array())
     {
         if (null !== $this->logger) {
             $this->logger->startQuery($query, $params);
         }
 
-        $result = $this->conn->query($this->prepareQuery($query, $params));
+        $result = $this->conn->query($this->prepareQuery($query, $params, $types));
 
         if (null !== $this->logger) {
             $this->logger->stopQuery();
@@ -82,7 +82,7 @@ class Connection
             $this->logger->startQuery($query, $params);
         }
 
-        $results = $this->conn->multiQuery($this->prepareQuery($query, $params), $resultSetNames);
+        $results = $this->conn->multiQuery($this->prepareQuery($query, $params, $types), $resultSetNames);
 
         if (null !== $this->logger) {
             $this->logger->stopQuery();
@@ -114,8 +114,8 @@ class Connection
         return new QueryBuilder($this);
     }
 
-    protected function prepareQuery($query, $params)
+    protected function prepareQuery($query, $params, $types)
     {
-        return Util::prepareQuery($query, $params, $this->getEscaper());
+        return Util::prepareQuery($query, $params, $types, $this->getEscaper());
     }
 }
