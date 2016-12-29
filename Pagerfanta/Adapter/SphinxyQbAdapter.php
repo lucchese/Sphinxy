@@ -28,12 +28,9 @@ class SphinxyQbAdapter implements LazyAdapterInterface
      */
     protected $previousResultSet;
 
-    protected $resultsFilterCallback;
-
-    public function __construct(QueryBuilder $qb, callable $resultsFilterCallback = null)
+    public function __construct(QueryBuilder $qb)
     {
         $this->qb = $qb;
-        $this->resultsFilterCallback = $resultsFilterCallback;
     }
 
     /**
@@ -63,10 +60,6 @@ class SphinxyQbAdapter implements LazyAdapterInterface
             ->getResult();
 
         $result = $this->previousResultSet->getIterator();
-
-        if (is_callable($this->resultsFilterCallback)) {
-            $result = call_user_func($this->resultsFilterCallback, $result, $offset, $length);
-        }
 
         return $result;
     }
