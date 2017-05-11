@@ -14,8 +14,8 @@ class UtilTest extends \PHPUnit_Framework_TestCase
         $this->escaper->expects($this->any())
             ->method('quote')
             ->will($this->returnCallback(function ($item) {
-                        return '-'.$item.'-';
-                    }));
+                return '-'.$item.'-';
+            }));
     }
 
     public function prepareQueryDataProvider()
