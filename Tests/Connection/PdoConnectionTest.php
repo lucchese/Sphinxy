@@ -16,7 +16,7 @@ class PdoConnectionTest extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @expectedException Brouzie\Sphinxy\Exception\ConnectionException
+     * @expectedException \Brouzie\Sphinxy\Exception\ConnectionException
      */
     public function testExceptionWhenCouldNotConnect()
     {

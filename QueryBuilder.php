@@ -235,9 +235,9 @@ class QueryBuilder
      * Creates a new named parameter and bind the value $value to it.
      *
      * @param string $value
-     * @param string $prefix The name to bind with.
+     * @param string $prefix the name to bind with
      *
-     * @return string the placeholder name used.
+     * @return string the placeholder name used
      */
     public function createParameter($value, $prefix = 'gen_')
     {
@@ -305,7 +305,7 @@ class QueryBuilder
      * @param string|array $sqlPart
      * @param bool $append
      *
-     * @return $this This QueryBuilder instance.
+     * @return $this this QueryBuilder instance
      */
     protected function add($sqlPartName, $sqlPart, $append = false)
     {

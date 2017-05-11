@@ -37,7 +37,7 @@ class Registry
     /**
      * Gets the named connection.
      *
-     * @param string $name The connection name (null for the default one).
+     * @param string $name the connection name (null for the default one)
      *
      * @return Connection
      */
