@@ -22,6 +22,8 @@ abstract class DoctrineQbIndexer implements IndexerInterface
 
     public function getRangeCriterias()
     {
+        $this->checkConnection();
+
         $rootId = $this->getRootIdentifier();
         $qb = $this->getQueryBuilder();
 
@@ -35,6 +37,7 @@ abstract class DoctrineQbIndexer implements IndexerInterface
 
     public function getItemsByIds(array $ids)
     {
+        $this->checkConnection();
         $rootId = $this->getRootIdentifier();
 
         $items = $this->getQueryBuilder()
@@ -49,6 +52,7 @@ abstract class DoctrineQbIndexer implements IndexerInterface
 
     public function getItemsByInterval($idFrom, $idTo)
     {
+        $this->checkConnection();
         $rootId = $this->getRootIdentifier();
 
         $items = $this->getQueryBuilder()
@@ -93,5 +97,14 @@ abstract class DoctrineQbIndexer implements IndexerInterface
     protected function getHydrationMode()
     {
         return AbstractQuery::HYDRATE_ARRAY;
+    }
+
+    private function checkConnection()
+    {
+        $connection = $this->em->getConnection();
+        if ($connection->ping() === false) {
+            $connection->close();
+            $connection->connect();
+        }
     }
 }

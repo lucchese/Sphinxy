@@ -26,11 +26,21 @@ class MultiResultSet extends ResultSet
         }
     }
 
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
     public function hasResultSet($name)
     {
         return isset($this->result[$name]);
     }
 
+    /**
+     * @param string $name
+     *
+     * @return SimpleResultSet
+     */
     public function getResultSet($name)
     {
         if (!$this->hasResultSet($name)) {

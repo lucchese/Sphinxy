@@ -106,20 +106,18 @@ class IndexManager
     protected function processItems($index, IndexerInterface $indexer, $items)
     {
         $items = $indexer->processItems($items);
+
         if (!count($items)) {
             return;
         }
 
+        $escaper = $this->conn->getEscaper();
         $insertQb = $this->conn
             ->createQueryBuilder()
-            ->replace($this->conn->getEscaper()->quoteIdentifier($index));
+            ->replace($escaper->quoteIdentifier($index));
 
         foreach ($items as $item) {
-            $insertQb->addValues(
-                $this->conn->getEscaper()->quoteSetArr(
-                    $indexer->serializeItem($item)
-                )
-            );
+            $insertQb->addValues($escaper->quoteSetArr($indexer->serializeItem($item)));
         }
 
         $insertQb->execute();
