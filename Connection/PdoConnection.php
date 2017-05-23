@@ -79,9 +79,19 @@ class PdoConnection implements ConnectionInterface
         if (null === $this->pdo) {
             try {
                 $this->pdo = new \PDO($this->dsn, null, null, array(\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION));
+                $this->pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
             } catch (\PDOException $e) {
                 throw new ConnectionException($e->getMessage(), 0, $e);
             }
+        }
+    }
+
+    public function checkConnection()
+    {
+        try {
+            $this->query('SELECT 1');
+        } catch (ConnectionException $e) {
+            $this->pdo = null;
         }
     }
 }

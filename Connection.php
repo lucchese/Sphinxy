@@ -106,6 +106,11 @@ class Connection
         return $this->escaper;
     }
 
+    public function checkConnection()
+    {
+        $this->conn->checkConnection();
+    }
+
     /**
      * @return QueryBuilder
      */

@@ -2,6 +2,7 @@
 
 namespace Brouzie\Sphinxy;
 
+use Brouzie\Sphinxy\Exception\ConnectionException;
 use Brouzie\Sphinxy\Indexer\IndexerInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -25,7 +26,7 @@ class IndexManager
         $this->indexers = $indexers;
     }
 
-    public function reindex($index, $batchSize = 1000, $batchCallback = null, array $rangeCriterias = array())
+    public function reindex($index, $batchSize = 1000, callable $batchCallback = null, array $rangeCriterias = array())
     {
         $logger = $this->conn->getLogger();
         $this->conn->setLogger(null);
@@ -33,15 +34,26 @@ class IndexManager
         $indexer = $this->getIndexer($index);
         $range = array_replace($indexer->getRangeCriterias(), $rangeCriterias);
 
+        $reindexCallback = function ($data) use ($index, $indexer, $batchCallback, $range) {
+            if (null !== $batchCallback) {
+                $batchCallback(
+                    array(
+                        'id_from' => $data['id_from'],
+                        'id_to' => $data['id_to'],
+                        'min_id' => $range['min'],
+                        'max_id' => $range['max'],
+                    )
+                );
+            }
+
+            $items = $indexer->getItemsByInterval($data['id_from'], $data['id_to']);
+            $this->processItems($index, $indexer, $items);
+        };
+
         $idFrom = $range['min'];
         do {
             $idTo = $idFrom + $batchSize;
-            if (is_callable($batchCallback)) {
-                call_user_func($batchCallback, array('id_from' => $idFrom, 'id_to' => $idTo, 'min_id' => $range['min'], 'max_id' => $range['max']));
-            }
-
-            $items = $indexer->getItemsByInterval($idFrom, $idTo);
-            $this->processItems($index, $indexer, $items);
+            $this->safeExecute($reindexCallback, array(array('id_from' => $idFrom, 'id_to' => $idTo)));
             $idFrom = $idTo;
         } while ($idFrom <= $range['max']);
         $this->conn->setLogger($logger);
@@ -51,30 +63,42 @@ class IndexManager
     {
         $indexer = $this->getIndexer($index);
 
-        do {
-            $itemsIdsToProcess = array_splice($itemsIds, 0, $batchSize);
+        $reindexItemsCallback = function ($itemsIdsToProcess) use ($index, $indexer) {
             $items = $indexer->getItemsByIds($itemsIdsToProcess);
             $this->processItems($index, $indexer, $items);
+        };
+
+        do {
+            $itemsIdsToProcess = array_splice($itemsIds, 0, $batchSize);
+            $this->safeExecute($reindexItemsCallback);
         } while ($itemsIdsToProcess);
     }
 
     public function removeItems($index, $itemsIds)
     {
-        return $this->conn->createQueryBuilder()
-            ->delete($this->conn->getEscaper()->quoteIdentifier($index))
-            ->where('id IN :ids')
-            ->setParameter('ids', $itemsIds)
-            ->execute();
+        $removeItemsCallback = function () use ($index, $itemsIds) {
+            return $this->conn->createQueryBuilder()
+                ->delete($this->conn->getEscaper()->quoteIdentifier($index))
+                ->where('id IN :ids')
+                ->setParameter('ids', $itemsIds)
+                ->execute();
+        };
+
+        return $this->safeExecute($removeItemsCallback);
     }
 
     public function getIndexRange($index)
     {
-        return $this->conn
-            ->createQueryBuilder()
-            ->select('MIN(id) AS `min`, MAX(id) AS `max`')
-            ->from($this->conn->getEscaper()->quoteIdentifier($index))
-            ->getResult()
-            ->getSingleRow(array('min' => 0, 'max' => 0));
+        $getIndexRangeCallback = function () use ($index) {
+            return $this->conn
+                ->createQueryBuilder()
+                ->select('MIN(id) AS `min`, MAX(id) AS `max`')
+                ->from($this->conn->getEscaper()->quoteIdentifier($index))
+                ->getResult()
+                ->getSingleRow(array('min' => 0, 'max' => 0));
+        };
+
+        return $this->safeExecute($getIndexRangeCallback);
     }
 
     public function truncate($index)
@@ -121,5 +145,20 @@ class IndexManager
         }
 
         $insertQb->execute();
+    }
+
+    protected function safeExecute(callable $callable, array $args = array(), $retriesCount = 3, $sleep = 20)
+    {
+        for ($i = 0; $i < $retriesCount; $i++) {
+            try {
+                return call_user_func_array($callable, $args);
+            } catch (ConnectionException $e) {
+                sleep($sleep);
+                $this->conn->checkConnection();
+                continue;
+            }
+        }
+
+        throw $e;
     }
 }

@@ -11,4 +11,6 @@ interface ConnectionInterface
     public function exec($query);
 
     public function quote($value);
+
+    public function checkConnection();
 }
