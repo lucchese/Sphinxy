@@ -31,6 +31,10 @@ class TraceLogger extends DebugStack
         $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
         foreach ($backtrace as $key => $debug) {
+            if (!isset($debug['class'])) {
+                continue;
+            }
+
             if (!$this->isInternalClass($debug['class'])) {
                 return array_slice($backtrace, $key - 1, 10);
             }
