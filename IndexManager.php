@@ -70,7 +70,7 @@ class IndexManager
 
         do {
             $itemsIdsToProcess = array_splice($itemsIds, 0, $batchSize);
-            $this->safeExecute($reindexItemsCallback);
+            $this->safeExecute($reindexItemsCallback, array($itemsIdsToProcess));
         } while ($itemsIdsToProcess);
     }
 
