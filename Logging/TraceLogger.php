@@ -31,6 +31,11 @@ class TraceLogger extends DebugStack
         $backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
         foreach ($backtrace as $key => $debug) {
+            //FIX: Пропускам трейсы где нет класса а есть 'function' =>  string(20) "call_user_func_array"
+            if (!isset($debug['class'])) {
+                continue;
+            }
+            
             if (!$this->isInternalClass($debug['class'])) {
                 return array_slice($backtrace, $key - 1, 10);
             }
