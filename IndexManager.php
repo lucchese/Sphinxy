@@ -129,22 +129,30 @@ class IndexManager
      */
     protected function processItems($index, IndexerInterface $indexer, $items)
     {
-        $items = $indexer->processItems($items);
+        $getItemsCallback = function () use ($indexer, $items) {
+            return $indexer->processItems($items);
+        };
+
+        $items = $this->safeExecute($getItemsCallback);
 
         if (!count($items)) {
             return;
         }
 
-        $escaper = $this->conn->getEscaper();
-        $insertQb = $this->conn
-            ->createQueryBuilder()
-            ->replace($escaper->quoteIdentifier($index));
+        $processItemsCallback = function () use ($index, $indexer, $items) {
+            $escaper = $this->conn->getEscaper();
+            $insertQb = $this->conn
+                ->createQueryBuilder()
+                ->replace($escaper->quoteIdentifier($index));
 
-        foreach ($items as $item) {
-            $insertQb->addValues($escaper->quoteSetArr($indexer->serializeItem($item)));
-        }
+            foreach ($items as $item) {
+                $insertQb->addValues($escaper->quoteSetArr($indexer->serializeItem($item)));
+            }
 
-        $insertQb->execute();
+            $insertQb->execute();
+        };
+
+        $this->safeExecute($processItemsCallback);
     }
 
     protected function safeExecute(callable $callable, array $args = array(), $retriesCount = 3, $sleep = 20)
